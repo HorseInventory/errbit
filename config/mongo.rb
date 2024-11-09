@@ -13,7 +13,7 @@ Mongoid.configure do |config|
   config.load_configuration(
     clients: {
       default: {
-        uri: uri
+        uri: uri,
         database: "errbit"
       }
     },
