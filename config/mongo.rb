@@ -14,7 +14,6 @@ Mongoid.configure do |config|
     clients: {
       default: {
         uri: uri,
-        database: "errbit"
       }
     },
     options: {
