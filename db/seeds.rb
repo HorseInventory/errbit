@@ -27,6 +27,7 @@ puts "Creating an initial admin user:"
 puts "-- username: #{admin_username}" if Errbit::Config.user_has_username
 puts "-- email:    #{admin_email}"
 puts "-- password: #{admin_pass}"
+puts "-- uri: #{Errbit::Config.mongo_url}"
 puts ""
 puts "Be sure to note down these credentials now!"
 puts "\nNOTE: DEMO instance, not for production use!" if heroku_pr_review_app?
