@@ -5,9 +5,6 @@ class ApplicationController < ActionController::Base
   before_action :authenticate_user!
   before_action :set_time_zone
 
-  def verify_authenticity_token
-  end
-
 private
 
   ##

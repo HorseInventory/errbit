@@ -2,7 +2,6 @@ class Api::V3::NoticesController < ApplicationController
   VERSION_TOO_OLD = 'Notice for old app version ignored'.freeze
   UNKNOWN_API_KEY = 'Your API key is unknown'.freeze
 
-  skip_before_action :verify_authenticity_token
   skip_before_action :authenticate_user!
 
   respond_to :json
