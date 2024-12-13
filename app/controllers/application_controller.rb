@@ -23,6 +23,8 @@ private
   end
 
   def authenticate_user_from_token!
+    return if user_signed_in?
+
     user_token = params[User.token_authentication_key].presence
     user       = user_token && User.find_by(authentication_token: user_token)
 
