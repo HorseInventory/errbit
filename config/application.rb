@@ -55,5 +55,7 @@ module Errbit
     config.to_prepare { Devise::Mailer.layout 'mailer' }
 
     config.active_job.queue_adapter = :sucker_punch
+
+    config.forgery_protection_origin_check = false
   end
 end
