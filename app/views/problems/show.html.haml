@@ -67,6 +67,7 @@
     %li= link_to t('.environment'), '#environment', :rel => 'environment', :class => 'button'
     %li= link_to t('.parameters'), '#params', :rel => 'params', :class => 'button'
     %li= link_to t('.session'), '#session', :rel => 'session', :class => 'button'
+    %li= link_to t('.occurrences'), '#occurrences', :rel => 'occurrences', :class => 'button'
 
 - if @notice
   #summary
@@ -93,3 +94,6 @@
   #session
     %h3 Session
     = render 'notices/session', :notice => @notice
+
+#occurrences
+  = render partial: 'notices_table', locals: { notices: @all_notices }
