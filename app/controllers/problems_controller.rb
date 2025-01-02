@@ -58,7 +58,7 @@ class ProblemsController < ApplicationController
         @notices.first
       end
     @notice  = notice ? NoticeDecorator.new(notice) : nil
-    @all_notices = problem.object.notices.reverse_ordered.page(params[:page]).per(5)
+    @all_notices = problem.object.notices.reverse_ordered.page(params[:page]).per(50)
     @comment = Comment.new
 
     respond_to do |format|
