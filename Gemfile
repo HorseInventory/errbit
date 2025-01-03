@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-RAILS_VERSION = '6.1.7.4'
+RAILS_VERSION = '~>6.1'
 
 ruby File.read(".ruby-version")
 
@@ -33,7 +33,7 @@ gem 'useragent'
 
 # Please don't update hoptoad_notifier to airbrake.
 # It's for internal use only, and we monkeypatch certain methods
-gem 'hoptoad_notifier', "~> 2.4"
+gem 'hoptoad_notifier', path: "vendor/hoptoad_notifier-2.4.11"
 
 # Notification services
 # ---------------------------------------
@@ -52,9 +52,6 @@ gem 'flowdock'
 gem 'ri_cal'
 gem 'json'
 
-# For Ruby 2.7
-# gem 'bigdecimal', '~> 1.4.4'
-
 # For Ruby 3.1
 gem 'net-smtp'
 gem 'net-pop'
@@ -71,7 +68,7 @@ group :development, :test do
 end
 
 group :development do
-  gem 'listen', '~> 3.0.5'
+  gem "listen", "~> 3.1"
   gem 'better_errors'
   gem 'binding_of_caller', platform: 'ruby'
   gem 'meta_request'

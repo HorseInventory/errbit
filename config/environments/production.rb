@@ -1,5 +1,5 @@
 Rails.application.configure do
-  config.hosts << "errbit.inventory.horse"
+  config.hosts << Errbit::Config.host
 
   # Settings specified here will take precedence over those in config/application.rb.
 
