@@ -1,5 +1,5 @@
 # load default ENV values (without overwriting any existing value)
-Dotenv.load('.env.default')
+Dotenv.load('.env')
 
 require_relative '../lib/configurator'
 
