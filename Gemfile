@@ -1,7 +1,6 @@
 source 'https://rubygems.org'
 
 RAILS_VERSION = '6.1.7.4'
-# RAILS_VERSION = '7.0.3.1'
 
 ruby File.read(".ruby-version")
 
@@ -34,7 +33,7 @@ gem 'useragent'
 
 # Please don't update hoptoad_notifier to airbrake.
 # It's for internal use only, and we monkeypatch certain methods
-gem 'hoptoad_notifier', path: "vendor/hoptoad_notifier-2.4.11"
+gem 'hoptoad_notifier', "~> 2.4"
 
 # Notification services
 # ---------------------------------------
@@ -107,12 +106,6 @@ gem 'pjax_rails'
 gem 'underscore-rails'
 
 gem 'sucker_punch'
-
-# rollback
-# TODO: remove after upgrade
-gem 'sawyer', '0.8.2'
-gem 'octokit', '4.21.0'
-gem 'faraday', '1.10.2'
 
 ENV['USER_GEMFILE'] ||= './UserGemfile'
 eval_gemfile ENV['USER_GEMFILE'] if File.exist?(ENV['USER_GEMFILE'])
