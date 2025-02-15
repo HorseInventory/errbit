@@ -3,38 +3,51 @@ class Api::V3::NoticesController < ApplicationController
   UNKNOWN_API_KEY = 'Your API key is unknown'.freeze
 
   skip_before_action :authenticate_user!
-
+  before_action :set_cors_headers
   respond_to :json
 
   def create
-    response.headers['Access-Control-Allow-Origin'] = '*'
-    response.headers['Access-Control-Allow-Headers'] = 'origin, content-type, accept'
     return render(status: :ok, body: '') if request.method == 'OPTIONS'
 
-    merged_params = if request.raw_post.present?
-                      params.merge!(JSON.parse(request.raw_post))
-                    else
-                      params
-                    end
+    merged_params = merged_request_params
+    validate_errors!(merged_params['errors'])
 
-    # merge makes a copy, merge! edits in place
-    merged_params = merged_params.merge!('key' => request.headers['X-Airbrake-Token']) if request.headers['X-Airbrake-Token']
-    merged_params = merged_params.merge!('key' => authorization_token) if authorization_token
     report = AirbrakeApi::V3::NoticeParser.new(merged_params).report
 
-    return render body: UNKNOWN_API_KEY, status: :unprocessable_entity unless report.valid?
-    return render body: VERSION_TOO_OLD, status: :unprocessable_entity unless report.should_keep?
+    return render json: { error: UNKNOWN_API_KEY }, status: :unprocessable_entity unless report.valid?
+    return render json: { error: VERSION_TOO_OLD }, status: :unprocessable_entity unless report.should_keep?
 
     report.generate_notice!
-    render status: :created, json: {
-      id:  report.notice.id,
-      url: report.problem.url
-    }
-  rescue AirbrakeApi::ParamsError
-    render body: 'Invalid request', status: :bad_request
+    render status: :created, json: { id: report.notice.id, url: report.problem.url }
+  rescue AirbrakeApi::ParamsError => e
+    render json: { error: 'Invalid request', details: e.message }, status: :bad_request
+  rescue StandardError => e
+    render json: { error: 'Unexpected server error', details: e.message }, status: :internal_server_error
   end
 
-private
+  private
+
+  def set_cors_headers
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    response.headers['Access-Control-Allow-Headers'] = 'origin, content-type, accept'
+  end
+
+  def merged_request_params
+    parsed_body = request.raw_post.present? ? JSON.parse(request.raw_post) : {}
+
+    params.merge(parsed_body).tap do |p|
+      p['key'] ||= request.headers['X-Airbrake-Token'] || authorization_token
+    end
+  end
+
+  def validate_errors!(errors)
+    return if errors.blank?
+
+    errors.each_with_index do |error, index|
+      missing_fields = %w[message backtrace].select { |field| error[field].blank? }
+      raise AirbrakeApi::ParamsError, "Error at index #{index}: Missing fields #{missing_fields.join(', ')}" unless missing_fields.empty?
+    end
+  end
 
   def authorization_token
     request.headers['Authorization'].to_s[/Bearer (.+)/, 1]
