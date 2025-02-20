@@ -31,7 +31,7 @@ Errbit::Config = Configurator.run(
 
   # github
   github_url:                ['GITHUB_URL', lambda do |values|
-    values[:github_url].gsub(%r{/*\z}, '')
+    values[:github_url] && values[:github_url].gsub(%r{/*\z}, '')
   end],
   github_authentication:     ['GITHUB_AUTHENTICATION'],
   github_client_id:          ['GITHUB_CLIENT_ID'],
