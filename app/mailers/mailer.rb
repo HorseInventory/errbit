@@ -24,7 +24,7 @@ class Mailer < ActionMailer::Base
                    'Error-Id'    => @notice.err_id
 
     mail to:      @app.notification_recipients,
-         subject: "#{count}[#{@app.name}][#{@notice.environment_name}] #{@notice.message.truncate(50)}"
+         subject: @notice.message.truncate(50)
   end
 
   def comment_notification(comment)
