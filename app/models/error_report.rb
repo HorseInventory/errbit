@@ -84,8 +84,11 @@ class ErrorReport
   end
 
   def merge_problems
+    # Using rules to merge problems
     merge_rules = app.rules
     merge_rules.each do |rule|
+      next unless rule.matches?(@notice)
+
       problems = find_problems_matching_rule(rule)
       next if problems.empty?
 

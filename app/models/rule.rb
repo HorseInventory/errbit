@@ -9,4 +9,8 @@ class Rule
 
   validates :name, presence: true
   validates :condition, presence: true
+
+  def matches?(notice)
+    Regexp.new(/#{condition}/i).match?(notice.message)
+  end
 end
