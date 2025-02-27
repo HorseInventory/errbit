@@ -56,9 +56,9 @@ class ErrorReport
     notice.err_id = error.id
     notice.save!
 
+    merge_problems
     retrieve_problem_was_resolved
     cache_attributes_on_problem
-    merge_problems
     email_notification
     services_notification
     @notice
@@ -88,7 +88,9 @@ class ErrorReport
       problems = find_problems_matching_rule(rule)
       next if problems.empty?
 
-      ProblemMerge.new(problems).merge
+      @problem = ProblemMerge.new(problems).merge
+      @error.problem_id = @problem.id
+      @error.save!
       break
     end
   end
