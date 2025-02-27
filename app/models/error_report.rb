@@ -1,5 +1,17 @@
 require 'hoptoad_notifier'
 
+GUID_PATTERN    = /\b[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\b/
+DOMAIN_PATTERN  = /\b[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)+\b/
+IP_PATTERN      = /\b(?:\d{1,3}\.){3}\d{1,3}\b/
+INTEGER_PATTERN = /\b\d+\b/
+
+VARIABLE_REGEX = Regexp.union(
+  GUID_PATTERN,
+  DOMAIN_PATTERN,
+  IP_PATTERN,
+  INTEGER_PATTERN
+)
+
 ##
 # Processes a new error report.
 #
@@ -100,6 +112,20 @@ class ErrorReport
       @error = @problem.errs.create!(error_attributes.slice(:fingerprint, :problem_id))
       break
     end
+
+    return if @problem.present?
+
+    # binding.pry
+    # Using similar problems to merge
+    similar_problems = find_similar_problems(@notice)
+    return if similar_problems.empty?
+
+    @problem = if similar_problems.count == 1
+      similar_problems.first
+    else
+      ProblemMerge.new(similar_problems).merge
+    end
+    @error = @problem.errs.create!(error_attributes.slice(:fingerprint, :problem_id))
   end
 
   # Update problem cache with information about this notice
@@ -171,5 +197,52 @@ class ErrorReport
 
   def find_problems_matching_rule(rule)
     Problem.where(message: /#{Regexp.escape(rule.condition)}/i).order(created_at: :asc)
+  end
+
+  def find_similar_problems(notice)
+    Problem.where(message: /#{text_to_regex_string(notice.message)}/i).order(created_at: :asc)
+  end
+
+  def text_to_regex_string(input_str)
+    result = +""  # mutable string
+    last_pos = 0
+  
+    input_str.scan(VARIABLE_REGEX) do
+      match = Regexp.last_match
+      match_start = match.begin(0)
+      match_end   = match.end(0)
+      variable_text = match[0]
+  
+      # Add the literal (escaped) text up to the start of this match
+      literal_text = input_str[last_pos...match_start]
+      result << Regexp.escape(literal_text)
+  
+      # Decide which pattern to insert for this match
+      case variable_text
+      when GUID_PATTERN
+        # Insert unescaped GUID pattern
+        result << '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}'
+      when DOMAIN_PATTERN
+        # Insert unescaped domain pattern
+        result << '[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)+'
+      when IP_PATTERN
+        # Insert unescaped IP pattern
+        result << '(?:\d{1,3}\.){3}\d{1,3}'
+      when INTEGER_PATTERN
+        # Insert unescaped integer pattern
+        result << '\d+'
+      else
+        # Fallback: if for some reason we matched something else, just escape it
+        result << Regexp.escape(variable_text)
+      end
+  
+      last_pos = match_end
+    end
+  
+    # Add any leftover text after the final match
+    leftover = input_str[last_pos..-1]
+    result << Regexp.escape(leftover) if leftover
+  
+    result
   end
 end
