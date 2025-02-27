@@ -53,10 +53,11 @@ class ErrorReport
     return @notice if @notice
 
     make_notice
+    merge_problems
+
     notice.err_id = error.id
     notice.save!
 
-    merge_problems
     retrieve_problem_was_resolved
     cache_attributes_on_problem
     email_notification
@@ -88,9 +89,12 @@ class ErrorReport
       problems = find_problems_matching_rule(rule)
       next if problems.empty?
 
-      @problem = ProblemMerge.new(problems).merge
-      @error.problem_id = @problem.id
-      @error.save!
+      @problem = if problems.count == 1
+        problems.first
+      else
+        ProblemMerge.new(problems).merge
+      end
+      @error = @problem.errs.create!(error_attributes.slice(:fingerprint, :problem_id))
       break
     end
   end
@@ -135,11 +139,15 @@ class ErrorReport
   #
   # @return [ Error ]
   def error
-    @error ||= app.find_or_create_err!(
+    @error ||= app.find_or_create_err!(error_attributes)
+  end
+
+  def error_attributes
+    {
       error_class: error_class,
       environment: rails_env,
       fingerprint: fingerprint
-    )
+    }
   end
 
   def valid?
@@ -159,10 +167,6 @@ class ErrorReport
   end
 
   def find_problems_matching_rule(rule)
-    primary_problem = Problem.where(id: @error.problem_id, message: /#{Regexp.escape(rule.condition)}/i).first
-    return [] unless primary_problem
-
-    other_problems = Problem.where(:id.ne => @error.problem_id, message: /#{Regexp.escape(rule.condition)}/i)
-    other_problems.present? ? [primary_problem, *other_problems] : []
+    Problem.where(message: /#{Regexp.escape(rule.condition)}/i).order(created_at: :asc)
   end
 end
