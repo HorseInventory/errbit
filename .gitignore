@@ -21,3 +21,4 @@ coverage
 .tool-versions
 NOTES
 *.swp
+public/assets
