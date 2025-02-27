@@ -100,7 +100,6 @@ class ErrorReport
 
   def should_email?
     problem_was_resolved ||
-      app.email_at_notices.include?(0) ||
       app.email_at_notices.include?(@problem.notices_count)
   end
 
