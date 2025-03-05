@@ -4,12 +4,24 @@ GUID_PATTERN    = /\b[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}
 DOMAIN_PATTERN  = /\b[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)+\b/
 IP_PATTERN      = /\b(?:\d{1,3}\.){3}\d{1,3}\b/
 INTEGER_PATTERN = /\b\d+\b/
+EMAIL_PATTERN   = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/
+PHONE_PATTERN   = /\b\(?[2-9]\d{2}\)?[ \-\.]?[2-9]\d{2}[ \-\.]?\d{4}\b/
+DATE_PATTERN    = /\b\d{4}-\d{2}-\d{2}(?:T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+\-]\d{2}:?\d{2})?)?\b/
+URL_PATTERN     = /\bhttps?:\/\/[^\s]+\b/
+FILE_PATH_PATTERN = /\b\/(?:[A-Za-z0-9._-]+\/)*[A-Za-z0-9._-]+\b/
+MAC_ADDRESS_PATTERN = /\b[0-9a-fA-F]{2}(?::[0-9a-fA-F]{2}){5}\b/
 
 VARIABLE_REGEX = Regexp.union(
   GUID_PATTERN,
   DOMAIN_PATTERN,
   IP_PATTERN,
-  INTEGER_PATTERN
+  INTEGER_PATTERN,
+  EMAIL_PATTERN,
+  PHONE_PATTERN,
+  DATE_PATTERN,
+  URL_PATTERN,
+  FILE_PATH_PATTERN,
+  MAC_ADDRESS_PATTERN
 )
 
 ##
@@ -34,7 +46,6 @@ class ErrorReport
   attr_reader :notice
   attr_reader :notifier
   attr_reader :problem
-  attr_reader :problem_was_resolved
   attr_reader :request
   attr_reader :server_environment
   attr_reader :user_attributes
@@ -64,21 +75,32 @@ class ErrorReport
     return unless valid?
     return @notice if @notice
 
-    make_notice
-    merge_problems
+    @notice = make_notice
+    @problem = merge_problems
 
-    notice.err_id = error.id
+    @error = if @problem.present?
+      @problem.errs.create!(error_attributes.slice(:fingerprint))
+    else
+      # Also creates a new Problem if needed
+      @app.find_or_create_err!(error_attributes)
+    end
+
+    # Update Problem
+    @problem = Problem.cache_notice(@error.problem_id, @notice)
+
+    @problem.message = text_to_placeholder_string(notice.message)
+    @problem.save!
+
+    notice.err_id = @error.id
     notice.save!
 
-    retrieve_problem_was_resolved
-    cache_attributes_on_problem
     email_notification
     services_notification
     @notice
   end
 
   def make_notice
-    @notice = Notice.new(
+    Notice.new(
       app:                app,
       message:            message,
       error_class:        error_class,
@@ -91,8 +113,8 @@ class ErrorReport
     )
   end
 
-  def retrieve_problem_was_resolved
-    @problem_was_resolved = Problem.where('_id' => @error.problem_id, resolved: true).exists?
+  def problem_was_resolved
+    @problem.resolved
   end
 
   def merge_problems
@@ -109,28 +131,20 @@ class ErrorReport
       else
         ProblemMerge.new(problems).merge
       end
-      @error = @problem.errs.create!(error_attributes.slice(:fingerprint, :problem_id))
       break
     end
 
-    return if @problem.present?
+    return @problem if @problem.present?
 
-    # binding.pry
     # Using similar problems to merge
     similar_problems = find_similar_problems(@notice)
-    return if similar_problems.empty?
+    return nil if similar_problems.empty?
 
-    @problem = if similar_problems.count == 1
+    if similar_problems.count == 1
       similar_problems.first
     else
       ProblemMerge.new(similar_problems).merge
     end
-    @error = @problem.errs.create!(error_attributes.slice(:fingerprint, :problem_id))
-  end
-
-  # Update problem cache with information about this notice
-  def cache_attributes_on_problem
-    @problem = Problem.cache_notice(@error.problem_id, @notice)
   end
 
   def should_email?
@@ -159,16 +173,6 @@ class ErrorReport
     app.notification_service.create_notification(problem)
   rescue => e
     HoptoadNotifier.notify(e)
-  end
-
-  ##
-  # Error associate to this error_report
-  #
-  # Can already exist or not
-  #
-  # @return [ Error ]
-  def error
-    @error ||= app.find_or_create_err!(error_attributes)
   end
 
   def error_attributes
@@ -231,6 +235,24 @@ class ErrorReport
       when INTEGER_PATTERN
         # Insert unescaped integer pattern
         result << '\d+'
+      when EMAIL_PATTERN
+        # Insert unescaped email pattern
+        result << '[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}'
+      when PHONE_PATTERN
+        # Insert unescaped phone pattern
+        result << '\(?[2-9]\d{2}\)?[ \-\.]?[2-9]\d{2}[ \-\.]?\d{4}'
+      when DATE_PATTERN
+        # Insert unescaped date pattern
+        result << '\d{4}-\d{2}-\d{2}(?:T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+\-]\d{2}:?\d{2})?)?'
+      when URL_PATTERN
+        # Insert unescaped URL pattern
+        result << 'https?:\/\/[^\s]+'
+      when FILE_PATH_PATTERN
+        # Insert unescaped file path pattern
+        result << '\/(?:[A-Za-z0-9._-]+\/)*[A-Za-z0-9._-]+'
+      when MAC_ADDRESS_PATTERN
+        # Insert unescaped MAC address pattern
+        result << '[0-9a-fA-F]{2}(?::[0-9a-fA-F]{2}){5}'
       else
         # Fallback: if for some reason we matched something else, just escape it
         result << Regexp.escape(variable_text)
@@ -244,5 +266,29 @@ class ErrorReport
     result << Regexp.escape(leftover) if leftover
   
     result
+  end
+
+  def text_to_placeholder_string(input_str)
+    input_str.gsub(
+      GUID_PATTERN, '<GUID>'
+    ).gsub(
+      DOMAIN_PATTERN, '<DOMAIN>'
+    ).gsub(
+      IP_PATTERN, '<IP>'
+    ).gsub(
+      INTEGER_PATTERN, '<INTEGER>'
+    ).gsub(
+      EMAIL_PATTERN, '<EMAIL>'
+    ).gsub(
+      PHONE_PATTERN, '<PHONE>'
+    ).gsub(
+      DATE_PATTERN, '<DATE>'
+    ).gsub(
+      URL_PATTERN, '<URL>'
+    ).gsub(
+      FILE_PATH_PATTERN, '<FILE_PATH>'
+    ).gsub(
+      MAC_ADDRESS_PATTERN, '<MAC_ADDRESS>'
+    )
   end
 end
