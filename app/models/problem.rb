@@ -118,7 +118,7 @@ class Problem
       '$set' => {
         'environment'                            => notice.environment_name,
         'error_class'                            => notice.error_class,
-        'last_notice_at'                         => notice.created_at.utc,
+        'last_notice_at'                         => notice.created_at ? notice.created_at.utc : Time.zone.now.utc,
         'message'                                => notice.message,
         'resolved'                               => false,
         'resolved_at'                            => nil,
