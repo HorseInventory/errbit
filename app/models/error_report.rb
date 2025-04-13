@@ -10,6 +10,7 @@ DATE_PATTERN    = /\b\d{4}-\d{2}-\d{2}(?:T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+\-]\
 URL_PATTERN     = /\bhttps?:\/\/[^\s]+\b/
 FILE_PATH_PATTERN = /\b\/(?:[A-Za-z0-9._-]+\/)*[A-Za-z0-9._-]+\b/
 MAC_ADDRESS_PATTERN = /\b[0-9a-fA-F]{2}(?::[0-9a-fA-F]{2}){5}\b/
+HASH_PATTERN = /\b[0-9a-fA-F]{7,64}\b/
 
 VARIABLE_REGEX = Regexp.union(
   GUID_PATTERN,
@@ -21,7 +22,8 @@ VARIABLE_REGEX = Regexp.union(
   DATE_PATTERN,
   URL_PATTERN,
   FILE_PATH_PATTERN,
-  MAC_ADDRESS_PATTERN
+  MAC_ADDRESS_PATTERN,
+  HASH_PATTERN
 )
 
 ##
@@ -253,6 +255,9 @@ class ErrorReport
       when MAC_ADDRESS_PATTERN
         # Insert unescaped MAC address pattern
         result << '[0-9a-fA-F]{2}(?::[0-9a-fA-F]{2}){5}'
+      when HASH_PATTERN
+        # Insert unescaped hash pattern
+        result << '[0-9a-fA-F]{7,64}'
       else
         # Fallback: if for some reason we matched something else, just escape it
         result << Regexp.escape(variable_text)
@@ -289,6 +294,8 @@ class ErrorReport
       FILE_PATH_PATTERN, '<FILE_PATH>'
     ).gsub(
       MAC_ADDRESS_PATTERN, '<MAC_ADDRESS>'
+    ).gsub(
+      HASH_PATTERN, '<HASH>'
     )
   end
 end
