@@ -139,7 +139,10 @@ class ErrorReport
     return @problem if @problem.present?
 
     # Using similar problems to merge
-    similar_problems = find_similar_problems(@notice)
+    similar_problems = find_similar_notices(@notice)
+      .only(:err_id)
+      .pluck(:err_id) # Get just the err_ids as an array
+      .then { |err_ids| Problem.where(:_id.in => Err.where(:_id.in => err_ids).distinct(:problem_id)) }
     return nil if similar_problems.empty?
 
     if similar_problems.count == 1
@@ -205,11 +208,11 @@ class ErrorReport
     Problem.where(message: /#{Regexp.escape(rule.condition)}/i).order(created_at: :asc)
   end
 
-  def find_similar_problems(notice)
-    Problem.where(message: /#{text_to_regex_string(notice.message)}/i).order(created_at: :asc)
+  def find_similar_notices(notice)
+    Notice.where(message: /#{self.class.text_to_regex_string(notice.message)}/i).order(created_at: :asc)
   end
 
-  def text_to_regex_string(input_str)
+  def self.text_to_regex_string(input_str)
     result = +""  # mutable string
     last_pos = 0
   
