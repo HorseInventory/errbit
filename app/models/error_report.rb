@@ -128,11 +128,8 @@ class ErrorReport
       problems = find_problems_matching_rule(rule)
       next if problems.empty?
 
-      @problem = if problems.count == 1
-        problems.first
-      else
-        ProblemMerge.new(problems).merge
-      end
+      @problem = ProblemMerge.new(problems).merge
+ 
       break
     end
 
@@ -145,11 +142,7 @@ class ErrorReport
       .then { |err_ids| Problem.where(:_id.in => Err.where(:_id.in => err_ids).distinct(:problem_id)) }
     return nil if similar_problems.empty?
 
-    if similar_problems.count == 1
-      similar_problems.first
-    else
-      ProblemMerge.new(similar_problems).merge
-    end
+    ProblemMerge.new(similar_problems).merge
   end
 
   def should_email?

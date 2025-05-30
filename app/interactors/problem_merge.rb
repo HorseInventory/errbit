@@ -7,7 +7,6 @@ class ProblemMerge
     problems = problems.flatten.uniq
     @merged_problem = problems[0]
     @child_problems = problems[1..-1]
-    fail ArgumentError, "need almost 2 uniq different problems" if @child_problems.empty?
   end
   attr_reader :merged_problem, :child_problems
 
@@ -31,7 +30,7 @@ class ProblemMerge
   def trim_old_notices_and_errs
     # Get count of all notices
     total_count = merged_problem.notices.count
-    
+
     if total_count > MAX_RECENT_NOTICES
       # Get notices to keep (100 most recent)
       notices_to_keep = merged_problem.notices.reverse_ordered.limit(MAX_RECENT_NOTICES)
