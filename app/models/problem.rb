@@ -182,7 +182,6 @@ class Problem
     first_notice = notices.order_by([:created_at, :asc]).first
     last_notice = notices.order_by([:created_at, :desc]).first
 
-    self.notices_count = notices.count
     self.first_notice_at = first_notice.created_at if first_notice
     self.message = first_notice.message if first_notice
     self.where = first_notice.where if first_notice

@@ -17,11 +17,21 @@ class ProblemMerge
       problem.reload # deference all associate objet to avoid delete him after
       ProblemDestroy.execute(problem)
     end
-    
+
     # Keep only the MAX_RECENT_NOTICES most recent notices and related Errs
-    trim_old_notices_and_errs
-    
+    deleted_count = trim_old_notices_and_errs
+
+    # If we deleted, then we were at the limit so we just add whatever we deleted above the limit
+    if deleted_count > 0
+      cached_notices_count = merged_problem.notices_count
+      merged_problem.notices_count = cached_notices_count + deleted_count
+    else
+      # If we didn't delete, then we can use the real count
+      merged_problem.notices_count = notices.count
+    end
+
     merged_problem.recache
+
     merged_problem
   end
 
@@ -42,6 +52,10 @@ class ProblemMerge
       # Delete errs and their associated notices we don't want to keep
       err_ids_to_keep = notices_to_keep.pluck(:err_id).uniq
       merged_problem.errs.where(:id.nin => err_ids_to_keep).delete
+
+      total_count - MAX_RECENT_NOTICES
+    else
+      0
     end
   end
 end
