@@ -27,7 +27,7 @@ class ProblemMerge
       merged_problem.notices_count = cached_notices_count + deleted_count
     else
       # If we didn't delete, then we can use the real count
-      merged_problem.notices_count = notices.count
+      merged_problem.notices_count = merged_problem.notices.count
     end
 
     merged_problem.recache
