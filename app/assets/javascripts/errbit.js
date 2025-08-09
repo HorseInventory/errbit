@@ -69,7 +69,7 @@ $(function () {
     // Update the .notice-pagination buttons by adding the hash fragment to the end of their URLs
     //   If there is already a hash fragment, replace it with the new one
     $(".notice-pagination a").each(function () {
-      const href = $(this).attr("href");
+      var href = $(this).attr("href");
       if (href && href.includes("#")) {
         $(this).attr("href", href.replace(/#.*$/, "#" + hash)); // Replace the current hash fragment with the new one
       } else if (href) {
