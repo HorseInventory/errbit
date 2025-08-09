@@ -9,7 +9,7 @@
                 An error has just occurred in
                 = link_to(@app.name, app_url(@app), :class => "bold") << ","
                 on the
-                %span.bold= @notice.environment_name
+                %span.bold= @notice.environment
                 environment.
                 %br
                 This error has occurred #{pluralize @notice.problem.notices_count, 'time'}.
@@ -27,7 +27,7 @@
               %p.heading WHERE:
               %p.monospace
                 = @notice.where
-              - @notice.backtrace.lines.each do |line|
+              - @notice.backtrace_lines.each do |line|
                 - next unless line.in_app?
                 %p.backtrace
                   = line.link_to_source_file(@app) do
@@ -48,9 +48,6 @@
               %p.monospace
                 - if @notice.request['url'].present?
                   = link_to @notice.request['url'], @notice.request['url']
-              %p.heading BROWSER:
-              %p.monospace
-                = user_agent_graph(@notice.problem)
               %br
               - if @notice.user_attributes.present?
                 %p.heading USER:
@@ -60,10 +57,10 @@
                       %td(style="text-align: right; padding-right: 10px; color: #6a6a6a;")= key.to_s.titleize + ":"
                       %td= Rinku.auto_link(value.to_s)
                 %br
-              - if @notice.backtrace.lines.any?
+              - if @notice.backtrace_lines.any?
                 %br
                 %p.heading FULL BACKTRACE:
-                - @notice.backtrace.lines.each do |line|
+                - @notice.backtrace_lines.each do |line|
                   %p.backtrace
                     = line.link_to_source_file(@app) do
                       = line.to_s

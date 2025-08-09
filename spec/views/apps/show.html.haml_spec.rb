@@ -29,23 +29,4 @@ describe "apps/show.html.haml", type: 'view' do
     end
   end
 
-  context "with user watch application" do
-    before do
-      allow(app).to receive(:watched_by?).with(user).and_return(true)
-    end
-    it 'see the unwatch button' do
-      render
-      expect(action_bar).to include(I18n.t('apps.show.unwatch'))
-    end
-  end
-
-  context "with user not watch application" do
-    before do
-      allow(app).to receive(:watched_by?).with(user).and_return(false)
-    end
-    it 'not see the unwatch button' do
-      render
-      expect(action_bar).to_not include(I18n.t('apps.show.unwatch'))
-    end
-  end
 end

@@ -3,6 +3,6 @@ class DestroyProblemsByAppJob < ActiveJob::Base
 
   def perform(app_id)
     app = App.find_by(id: app_id)
-    ::ProblemDestroy.execute(app.problems)
+    ::ProblemDestroy.new(app.problems).execute
   end
 end

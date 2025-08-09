@@ -22,3 +22,4 @@ coverage
 NOTES
 *.swp
 public/assets
+.env.prod

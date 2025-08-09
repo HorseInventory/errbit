@@ -1,29 +1,22 @@
 Fabricator(:problem) do
   app { Fabricate(:app) }
-  comments { [] }
   error_class 'FooError'
   environment 'production'
+  message 'FooError: Too Much Bar'
+  where 'app#bar'
 end
 
-Fabricator(:problem_with_comments, from: :problem) do
+Fabricator(:problem_with_notices, from: :problem) do
   after_create do |parent|
     3.times do
-      Fabricate(:comment, err: parent)
-    end
-  end
-end
-
-Fabricator(:problem_with_errs, from: :problem) do
-  after_create do |parent|
-    3.times do
-      Fabricate(:err, problem: parent)
+      Fabricate(:notice, problem: parent)
     end
   end
 end
 
 Fabricator(:problem_resolved, from: :problem) do
   after_create do |pr|
-    Fabricate(:notice, err: Fabricate(:err, problem: pr))
+    Fabricate(:notice, problem: pr)
     pr.resolve!
   end
 end

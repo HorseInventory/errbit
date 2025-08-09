@@ -13,10 +13,10 @@ class UsersController < ApplicationController
 
   def create
     if user.save
-      flash[:success] = "#{user.name} is now part of the team. Be sure to add them as a project watcher."
-      redirect_to user_path(user)
+      flash[:success] = "#{user.name} is now part of the team."
+      redirect_to(user_path(user))
     else
-      render :new
+      render(:new)
     end
   end
 
@@ -24,9 +24,9 @@ class UsersController < ApplicationController
     if user.update(user_params)
       flash[:success] = I18n.t('controllers.users.flash.update.success', name: user.name)
 
-      redirect_to user_path(user)
+      redirect_to(user_path(user))
     else
-      render :edit
+      render(:edit)
     end
   end
 
@@ -42,19 +42,7 @@ class UsersController < ApplicationController
       UserDestroy.new(user).destroy
       flash[:success] = I18n.t('controllers.users.flash.destroy.success', name: user.name)
     end
-    redirect_to users_path
-  end
-
-  def unlink_github
-    user.update(github_login: nil, github_oauth_token: nil)
-
-    redirect_to user_path(user)
-  end
-
-  def unlink_google
-    user.update(google_uid: nil)
-
-    redirect_to user_path(user)
+    redirect_to(users_path)
   end
 
 private
@@ -69,7 +57,7 @@ private
   end
 
   def user_permit_params
-    @user_permit_params ||= [:name, :username, :email, :github_login, :per_page, :time_zone]
+    @user_permit_params ||= [:name, :username, :email, :per_page, :time_zone]
     @user_permit_params << :admin if current_user.admin? && current_user.id != params[:id]
     @user_permit_params |= [:password, :password_confirmation] if user_password_params.values.all? { |pa| !pa.blank? }
     @user_permit_params

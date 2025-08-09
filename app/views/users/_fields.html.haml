@@ -13,9 +13,7 @@
   = f.label :email, t('.email')
   = f.text_field :email
 
-- if Errbit::Config.github_authentication
-  = f.label :github_login, "#{Errbit::Config.github_site_title} login"
-  = f.text_field :github_login
+ 
 
 .required
   = f.label :per_page, t('.entries')

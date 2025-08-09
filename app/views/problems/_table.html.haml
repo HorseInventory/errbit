@@ -1,9 +1,9 @@
-- any_issue_links = problems.any?{|e| e.issue_link.present? && e.issue_link != 'pending' }
+ 
 - on_page_that_can_include_multiple_different_apps = params[:controller] == 'problems'
 = form_tag do
   .tab-bar
     %ul
-      - [:merge, :unmerge, :resolve, :unresolve, :delete].each do |action|
+      - [:merge, :resolve, :unresolve, :delete].each do |action|
         %li= submit_tag t(".#{action}").capitalize, :id => "#{action}_problems", :class => 'button',
           :data => { :action => polymorphic_path([action == :delete ? :destroy : action, :several_problems]),
           :confirm => problem_confirm(action) }
@@ -18,8 +18,7 @@
         %th= link_for_sort t('.what_&_where').html_safe, "message"
         %th= link_for_sort t('.latest'), "last_notice_at"
         %th.count-header= link_for_sort t('.count')
-        - if any_issue_links
-          %th Issue
+        
         %th= t('.resolve')
     %tbody
       - ProblemDecorator.decorate_collection(problems).each do |problem|
@@ -40,22 +39,13 @@
             %div.td-container
               = link_to problem.link_text, app_problem_path(problem.app, problem), class: 'nowrap', title: problem.message
               %em{class: 'nowrap', title: problem.where}= problem.where
-              - if problem.comments_count > 0
-                - comment = problem.comments.last
-                %br
-                .inline_comment{class: 'nowrap'}
-                  - if comment.user
-                    %em.commenter= (Errbit::Config.user_has_username ? comment.user.username : comment.user.email).to_s << ":"
-                  %em= truncate(comment.body, :length => 100, :separator => ' ')
+              
           %td.latest
             - value = "#{time_ago_in_words(problem.last_notice_at)} #{I18n.t('problems.table.ago')}"
             %div.td-container{class: 'nowrap', title: value}= value
           %td.count.narrow-as-possible
             %div.td-container= link_to problem.notices_count, app_problem_path(problem.app, problem)
-            - if any_issue_links
-              %td.issue_link.narrow-as-possible
-                - if problem.app.issue_tracker_configured? && problem.issue_link.present? && problem.issue_link != 'pending'
-                  = link_to image_tag("#{problem.issue_type}_goto.png"), problem.issue_link, :target => "_blank"
+            
           %td.resolve.narrow-as-possible
             %div.td-container= link_to image_tag("thumbs-up.png"), resolve_app_problem_path(problem.app, problem),
               :title => "Resolve", :method => :put, :data => { :confirm => problem_confirm('resolve_one') },
@@ -63,5 +53,5 @@
       - if problems.none?
         %tr
           %td{:colspan => 100}
-            %em No errs here
+            %em No problems here
   = paginate problems

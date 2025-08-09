@@ -6,8 +6,7 @@
     padding-left: 106px;
 
 - content_for :action_bar do
-  = render 'shared/link_github_account'
-  = render 'shared/link_google_account'
+  
   = link_to t('.edit'), edit_user_path(user), :class => 'button'
   = link_to t('.destroy'), user_path(user), :method => :delete,
     :data => { :confirm => t('users.confirm_delete') }, :class => 'delete button'
@@ -20,10 +19,7 @@
     %tr
       %th= t('.username')
       %td.main= user.username
-  - if Errbit::Config.github_authentication && user.github_login.present?
-    %tr
-      %th= "#{Errbit::Config.github_site_title} Login"
-      %td.main= link_to user.github_login, "#{Errbit::Config.github_url}/#{user.github_login}"
+  
   %tr
     %th= t('.admin')
     %td= user.admin? ? 'Y' : 'N'

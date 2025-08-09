@@ -5,37 +5,6 @@ describe User do
       expect(user).to_not be_valid
       expect(user.errors[:name]).to include("can't be blank")
     end
-
-    it 'requires password without github login' do
-      user = Fabricate.build(:user, password: nil)
-      expect(user).to_not be_valid
-      expect(user.errors[:password]).to include("can't be blank")
-    end
-
-    it "doesn't require password with github login" do
-      user = Fabricate.build(:user, password: nil, github_login: 'nashby')
-      expect(user).to be_valid
-    end
-
-    it 'requires uniq github login' do
-      user1 = Fabricate(:user, github_login: 'nashby')
-      expect(user1).to be_valid
-
-      user2 = Fabricate.build(:user, github_login: 'nashby')
-      user2.save
-      expect(user2).to_not be_valid
-      expect(user2.errors[:github_login]).to include("has already been taken")
-    end
-
-    it 'allows blank / null github_login' do
-      user1 = Fabricate(:user, github_login: ' ')
-      expect(user1).to be_valid
-
-      user2 = Fabricate.build(:user, github_login: ' ')
-      user2.save
-      expect(user2).to be_valid
-    end
-
     it "disables validations when reset password" do
       user = Fabricate.build(:user, email: '')
       user.save(validate: false)

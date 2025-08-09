@@ -7,6 +7,6 @@ class DestroyProblemsByIdJob < ActiveJob::Base
       bson_problem_ids << BSON::ObjectId.from_string(id)
     end
     problems = Problem.find(bson_problem_ids).to_a
-    ::ProblemDestroy.execute(problems)
+    ::ProblemDestroy.new(problems).execute
   end
 end

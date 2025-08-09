@@ -18,7 +18,7 @@ module AirbrakeApi
           server_environment: server_environment,
           api_key:            params['key'].present? ? params['key'] : params['project_id'],
           notifier:           context['notifier'] || params['notifier'],
-          user_attributes:    user_attributes
+          user_attributes:    user_attributes,
         }
       end
 
@@ -29,7 +29,7 @@ module AirbrakeApi
     private
 
       def error
-        fail AirbrakeApi::ParamsError unless params.key?('errors') && params['errors'].any?
+        fail(AirbrakeApi::ParamsError) unless params.key?('errors') && params['errors'].any?
         @error ||= params['errors'].first
       end
 
@@ -39,7 +39,7 @@ module AirbrakeApi
             method: backtrace_line['function'],
             file:   backtrace_line['file'],
             number: backtrace_line['line'],
-            column: backtrace_line['column']
+            column: backtrace_line['column'],
           }
         end
       end
@@ -49,13 +49,13 @@ module AirbrakeApi
           'environment-name' => context['environment'],
           'hostname'         => hostname,
           'project-root'     => context['rootDirectory'],
-          'app-version'      => context['version']
+          'app-version'      => context['version'],
         }
       end
 
       def request
         environment = (params['environment'] || {}).merge!(
-          'HTTP_USER_AGENT' => context['userAgent']
+          'HTTP_USER_AGENT' => context['userAgent'],
         )
 
         {
@@ -64,7 +64,7 @@ module AirbrakeApi
           'params'    => params['params'],
           'url'       => url,
           'component' => context['component'],
-          'action'    => context['action']
+          'action'    => context['action'],
         }
       end
 
@@ -76,7 +76,7 @@ module AirbrakeApi
           'id'       => context['userId'],
           'name'     => context['userName'],
           'email'    => context['userEmail'],
-          'username' => context['userUsername']
+          'username' => context['userUsername'],
         }.compact
       end
 

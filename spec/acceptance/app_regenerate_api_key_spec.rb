@@ -3,9 +3,7 @@ require 'acceptance/acceptance_helper'
 feature "Regeneration api_Key" do
   let(:app) { Fabricate(:app) }
   let(:admin) { Fabricate(:admin) }
-  let(:user) do
-    Fabricate(:user_watcher, app: app).user
-  end
+  let(:user) { Fabricate(:user) }
 
   before do
     app && admin
@@ -37,7 +35,7 @@ end
 feature "Create an application" do
   let(:admin) { Fabricate(:admin) }
   let(:user) do
-    Fabricate(:user_watcher, app: app).user
+    Fabricate(:user, app: app).user
   end
 
   before do
@@ -69,27 +67,16 @@ feature "Create an application" do
     log_in admin
     click_on I18n.t('apps.index.new_app')
     fill_in 'app_name', with: 'My new app'
-    find('.label_radio.github').click
 
-    fill_in 'app_github_repo', with: 'foo/bar'
-    within ".github.tracker_params" do
-      fill_in 'app_issue_tracker_attributes_options_username', with: 'token'
-      fill_in 'app_issue_tracker_attributes_options_password', with: 'pass'
-    end
     click_on I18n.t('apps.new.add_app')
     expect(page.has_content?(I18n.t('controllers.apps.flash.create.success'))).to eql true
     app = App.where(name: 'My new app').first
-    expect(app.issue_tracker.type_tracker).to eql 'github'
-    expect(app.issue_tracker.options['username']).to eql 'token'
-    expect(app.issue_tracker.options['password']).to eql 'pass'
 
     click_on I18n.t('shared.navigation.apps')
     click_on 'My new app'
     click_link I18n.t('apps.show.edit')
-    find('.issue_tracker .label_radio.none').click
     click_on I18n.t('apps.edit.update')
     expect(page.has_content?(I18n.t('controllers.apps.flash.update.success'))).to eql true
     app = App.where(name: 'My new app').first
-    expect(app.issue_tracker.tracker).to be_a ErrbitPlugin::NoneIssueTracker
   end
 end

@@ -132,5 +132,5 @@ In order of precedence Errbit uses:
 <dd>Custom arguments for sendmail
 <dt>DEVISE_MODULES
 <dd>Devise modules to enable
-<dd>defaults to [database_authenticatable,recoverable,rememberable,trackable,validatable,omniauthable]
+<dd>defaults to [database_authenticatable,recoverable,rememberable,trackable,validatable]
 </dl>

@@ -23,7 +23,7 @@ describe BacktraceLineDecorator, type: :decorator do
   let(:backtrace_line_no_object) do
     described_class.new(nil)
   end
-  let(:app) { Fabricate(:app, github_repo: 'foo/bar') }
+  let(:app) { Fabricate(:app) }
 
   describe '#to_s' do
     it 'returns a nice string representation of the first line' do

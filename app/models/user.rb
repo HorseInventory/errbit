@@ -6,9 +6,6 @@ class User
   devise(*Errbit::Config.devise_modules)
 
   field :email
-  field :github_login
-  field :github_oauth_token
-  field :google_uid
   field :name
   field :admin, type: Boolean, default: false
   field :per_page, type: Integer, default: PER_PAGE
@@ -40,7 +37,6 @@ class User
   before_save :ensure_authentication_token
 
   validates :name, presence: true
-  validates :github_login, uniqueness: { allow_nil: true }
 
   if Errbit::Config.user_has_username
     field :username
@@ -49,8 +45,10 @@ class User
 
   def self.valid_google_domain?(email)
     return true if Errbit::Config.google_authorized_domains.nil?
+
     match_data = /.+@(?<domain>.+)$/.match(email)
     return false if match_data.nil?
+
     Errbit::Config.google_authorized_domains.split(",").include?(match_data[:domain])
   end
 
@@ -59,10 +57,11 @@ class User
     user = User.where(email: data['email']).first
 
     unless user
-      user = User.create(name:       data['name'],
-                         email:      data['email'],
-                         google_uid: access_token.uid,
-                         password:   Devise.friendly_token[0, 20]
+      user = User.create(
+        name:       data['name'],
+        email:      data['email'],
+        google_uid: access_token.uid,
+        password:   Devise.friendly_token[0, 20],
       )
     end
     user
@@ -70,31 +69,6 @@ class User
 
   def per_page
     super || PER_PAGE
-  end
-
-  def watching?(app)
-    apps.all.include?(app)
-  end
-
-  def password_required?
-    github_login.present? ? false : super
-  end
-
-  def github_account?
-    github_login.present? && github_oauth_token.present?
-  end
-
-  def can_create_github_issues?
-    github_account? && Errbit::Config.github_access_scope.include?('repo')
-  end
-
-  def github_login=(login)
-    login = nil if login.is_a?(String) && login.strip.empty?
-    self[:github_login] = login
-  end
-
-  def google_account?
-    google_uid.present?
   end
 
   def ensure_authentication_token
@@ -113,6 +87,7 @@ class User
 
     self.class.validators_on(:password).map { |v| v.validate_each(self, :password, password) }
     return false if errors.any?
+
     save(validate: false)
   end
 

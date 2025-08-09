@@ -2,9 +2,9 @@ module NavigationHelper
   # Returns ' active' if you are on a given controller
   #  - active_if_here(:users) => ' active' if users controller
   # Or on one of a list of controllers
-  # - active_if_here([:users, :blogs, :comments])
+  # - active_if_here([:users, :blogs])
   # Or on certain action(s) in a certain controller
-  #  - active_if_here(:users => :index, :blogs => [:create, :update], :comments)
+  #  - active_if_here(:users => :index, :blogs => [:create, :update])
   #
   # Useful for navigation elements that have a certain state when your on a given page.
   # Returns nil if there are no matches so when passing:

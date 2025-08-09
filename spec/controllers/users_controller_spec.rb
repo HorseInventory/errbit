@@ -72,16 +72,6 @@ describe UsersController, type: 'controller' do
           put :update, params: { id: user.to_param, user: { time_zone: "Warsaw" } }
           expect(user.reload.time_zone).to eq "Warsaw"
         end
-
-        it "should be able to not set github_login option" do
-          put :update, params: { id: user.to_param, user: { github_login: " " } }
-          expect(user.reload.github_login).to eq nil
-        end
-
-        it "should be able to set github_login option" do
-          put :update, params: { id: user.to_param, user: { github_login: "awesome_name" } }
-          expect(user.reload.github_login).to eq "awesome_name"
-        end
       end
 
       context "when the update is unsuccessful" do

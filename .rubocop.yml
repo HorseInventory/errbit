@@ -1,13 +1,16 @@
-require:
+plugins:
   - rubocop-rails
   - rubocop-performance
 
 inherit_from: .rubocop_todo.yml
 
+inherit_gem:
+  rubocop-shopify: rubocop.yml
+
 AllCops:
   Exclude:
-    - 'bin/*'
-    - 'vendor/**/*'
+    - "bin/*"
+    - "vendor/**/*"
 
 # Caveat: .find_by raises exception in mongoid, unlike ActiveRecord which
 # returns nil
@@ -26,7 +29,7 @@ Layout/IndentationConsistency:
   # modifier keywords shall be indented the same as public methods and that
   # protected and private members shall be indented one step more than the
   # modifiers.
-  EnforcedStyle: rails
+  EnforcedStyle: indented_internal_methods
 
 Style/GuardClause:
   MinBodyLength: 4
@@ -34,7 +37,7 @@ Style/GuardClause:
 Layout/AccessModifierIndentation:
   EnforcedStyle: outdent
 
-Layout/AlignParameters:
+Layout/ParameterAlignment:
   EnforcedStyle: with_fixed_indentation
 
 Layout/DotPosition:
@@ -44,10 +47,10 @@ Layout/DotPosition:
 Layout/MultilineOperationIndentation:
   EnforcedStyle: indented
 
-Layout/IndentFirstHashElement:
+Layout/FirstHashElementIndentation:
   EnforcedStyle: consistent
 
-Layout/AlignHash:
+Layout/HashAlignment:
   EnforcedHashRocketStyle: table
   EnforcedColonStyle: table
 
@@ -56,8 +59,11 @@ Layout/SpaceAroundOperators:
 
 # long spec blocks are probably fine
 Metrics/BlockLength:
-  ExcludedMethods: ['describe', 'context']
+  AllowedMethods: ["describe", "context"]
 
 Naming/FileName:
   Exclude:
-    - 'config/initializers/cve-*.rb'
+    - "config/initializers/cve-*.rb"
+
+Layout/TrailingWhitespace:
+  Enabled: true

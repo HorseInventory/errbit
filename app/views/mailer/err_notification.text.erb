@@ -1,4 +1,4 @@
-An error has just occurred in <%= @notice.environment_name %>: <%= raw(@notice.message) %>
+An error has just occurred in <%= @notice.environment %>: <%= raw(@notice.message) %>
 
 This error has occurred <%= pluralize @notice.problem.notices_count, 'time' %>. You should really look into it here:
 
@@ -14,7 +14,7 @@ WHERE:
 
 <%= @notice.where %>
 
-<% @notice.backtrace.lines.each do |line| %>
+<% @notice.backtrace_lines.each do |line| %>
   <% next unless line.in_app? %>
   <%= line %>
 <% end %>
@@ -52,7 +52,7 @@ USER:
 
 BACKTRACE:
 
-<% @notice.backtrace.lines.each do |line| %>
+<% @notice.backtrace_lines.each do |line| %>
   <%= line %>
 <% end %>
 

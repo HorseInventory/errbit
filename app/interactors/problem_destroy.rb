@@ -1,46 +1,16 @@
 class ProblemDestroy
-  attr_reader :problem
-
-  def initialize(problem)
-    @problem = problem
+  def initialize(problems)
+    @problems = problems
   end
 
   def execute
-    delete_errs
-    delete_comments
-    problem.delete
-  end
+    if @problems.respond_to?(:destroy_all)
+      @problems.destroy_all
+    else
+      @problems.each(&:destroy)
+    end
 
-  ##
-  # Destroy all problem pass in args
-  #
-  # @params [ Array[Problem] ] problems the list of problem need to be delete
-  #   can be a single Problem
-  # @return [ Integer ]
-  #   the number of problem destroy
-  #
-  def self.execute(problems)
-    Array(problems).each do |problem|
-      ProblemDestroy.new(problem).execute
-    end.count
-  end
-
-private
-
-  def errs_id
-    problem.errs.only(:id).map(&:id)
-  end
-
-  def comments_id
-    problem.comments.only(:id).map(&:id)
-  end
-
-  def delete_errs
-    Notice.delete_all(err_id: { '$in' => errs_id })
-    Err.delete_all(_id: { '$in' => errs_id })
-  end
-
-  def delete_comments
-    Comment.delete_all(_id: { '$in' => comments_id })
+    # Delete all backtraces that are not associated with any notices
+    Backtrace.where(:id.nin => Notice.pluck(:backtrace_id)).delete_all
   end
 end

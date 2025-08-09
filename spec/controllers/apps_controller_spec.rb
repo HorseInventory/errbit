@@ -5,40 +5,24 @@ describe AppsController, type: 'controller' do
   let(:app_params) { { name: 'BestApp' } }
   let(:admin) { Fabricate(:admin) }
   let(:user) { Fabricate(:user) }
-  let(:watcher) { Fabricate(:user_watcher, app: app, user: user) }
-  let(:unwatched_app) { Fabricate(:app) }
-  let(:app) { unwatched_app }
-  let(:watched_app1) do
-    a = Fabricate(:app)
-    Fabricate(:user_watcher, user: user, app: a)
-    a
-  end
-  let(:watched_app2) do
-    a = Fabricate(:app)
-    Fabricate(:user_watcher, user: user, app: a)
-    a
-  end
-  let(:err) do
-    Fabricate(:err, problem: problem)
-  end
+  let(:app1) { Fabricate(:app) }
+  let(:app2) { Fabricate(:app) }
+  let(:app3) { Fabricate(:app) }
+  let(:app) { app1 }
+  let(:err) { nil }
   let(:notice) do
-    Fabricate(:notice, err: err)
+    Fabricate(:notice, problem: problem)
   end
   let(:problem) do
     Fabricate(:problem, app: app)
   end
   let(:problem_resolved) { Fabricate(:problem_resolved, app: app) }
-  let(:notice_fingerprinter) do
-    nf = SiteConfig.document.notice_fingerprinter
-    nf.backtrace_lines = 10
-    nf
-  end
 
   describe "GET /apps" do
     context 'when logged in as an admin' do
       it 'finds all apps' do
         sign_in admin
-        unwatched_app && watched_app1 && watched_app2
+        app1 && app1 && app2
         get :index
         expect(controller.apps.entries).to eq App.all.to_a.sort.entries
       end
@@ -47,7 +31,7 @@ describe AppsController, type: 'controller' do
     context 'when logged in as a regular user' do
       it 'finds all apps' do
         sign_in user
-        unwatched_app && watched_app1 && watched_app2
+        app1 && app1 && app2
         get :index
         expect(controller.apps.entries).to eq App.all.to_a.sort.entries
       end
@@ -65,29 +49,14 @@ describe AppsController, type: 'controller' do
         expect(controller.app).to eq app
       end
 
-      it "should not raise errors for app with err without notices" do
-        err
+      it "should not raise errors for app with problem without notices" do
+        problem
         expect { get :show, params: { id: app.id } }.to_not raise_error
-      end
-
-      it "should list atom feed successfully" do
-        get :show, params: { id: app.id, format: "atom" }
-        expect(response).to be_successful
-      end
-
-      it "should list available watchers by name" do
-        Fabricate(:user, name: "Carol")
-        Fabricate(:user, name: "Alice")
-        Fabricate(:user, name: "Betty")
-
-        get :show, params: { id: app.id }
-
-        expect(controller.users.to_a).to eq(User.all.to_a.sort_by(&:name))
       end
 
       context "pagination" do
         before(:each) do
-          35.times { Fabricate(:err, problem: Fabricate(:problem, app: app)) }
+          35.times { Fabricate(:problem, app: app) }
         end
 
         it "should have default per_page value for user" do
@@ -184,21 +153,18 @@ describe AppsController, type: 'controller' do
     end
 
     describe "GET /apps/new" do
-      it 'instantiates a new app with a prebuilt watcher' do
+      it 'instantiates a new app' do
         get :new
         expect(controller.app).to be_a(App)
         expect(controller.app).to be_new_record
-        expect(controller.app.watchers).to_not be_empty
       end
 
       it "should copy attributes from an existing app" do
-        @app = Fabricate(:app, name:        "do not copy",
-                               github_repo: "test/example")
+        @app = Fabricate(:app, name:        "do not copy")
         get :new, params: { copy_attributes_from: @app.id }
         expect(controller.app).to be_a(App)
         expect(controller.app).to be_new_record
         expect(controller.app.name).to be_blank
-        expect(controller.app.github_repo).to eq "test/example"
       end
     end
 
@@ -291,64 +257,6 @@ describe AppsController, type: 'controller' do
           end
         end
       end
-
-      # TODO: what is `cur`?
-      context "setting up issue tracker", cur: true do
-        context "unknown tracker type" do
-          before(:each) do
-            put :update, params: { id: @app.id, app: { issue_tracker_attributes: {
-              type_tracker: 'unknown', options: { project_id: '1234', api_token: '123123', account: 'myapp' }
-            } } }
-            @app.reload
-          end
-
-          it "should not create issue tracker" do
-            expect(@app.issue_tracker_configured?).to eq false
-          end
-        end
-      end
-
-      context "selecting 'use site fingerprinter'" do
-        before(:each) do
-          SiteConfig.document.update!(notice_fingerprinter: notice_fingerprinter)
-
-          put :update, params: {
-            id:  @app.id,
-            app: {
-              notice_fingerprinter_attributes: {
-                backtrace_lines: 42
-              },
-              use_site_fingerprinter:          '1'
-            }
-          }
-
-          @app.reload
-        end
-
-        it "should copy site fingerprinter into app fingerprinter" do
-          fingerprinter_attrs = @app.notice_fingerprinter.attributes.except('_id', 'source').to_h
-          expected_attrs = SiteConfig.document.notice_fingerprinter.attributes.except('_id', 'source').to_h
-          expect(fingerprinter_attrs).to eq(expected_attrs)
-        end
-      end
-
-      context "not selecting 'use site fingerprinter'" do
-        before(:each) do
-          SiteConfig.document.update_attributes(notice_fingerprinter: notice_fingerprinter)
-          put :update, params: { id: @app.id, app: {
-            notice_fingerprinter_attributes: { backtrace_lines: 42 },
-            use_site_fingerprinter:          '0'
-          } }
-          @app.reload
-        end
-
-        it "shouldn't copy site fingerprinter into app fingerprinter" do
-          fingerprinter_attrs = @app.notice_fingerprinter.attributes.except('_id', 'source').to_h
-          expected_attrs = SiteConfig.document.notice_fingerprinter.attributes.except('_id', 'source').to_h
-          expect(fingerprinter_attrs).to_not eq(expected_attrs)
-          expect(@app.notice_fingerprinter.backtrace_lines).to be 42
-        end
-      end
     end
 
     describe "DELETE /apps/:id" do
@@ -381,17 +289,6 @@ describe AppsController, type: 'controller' do
   end
 
   describe "POST /apps/:id/regenerate_api_key" do
-    context "like watcher" do
-      before do
-        sign_in watcher.user
-      end
-
-      it 'redirect to root with flash error' do
-        post :regenerate_api_key, params: { id: 'foo' }
-        expect(request).to redirect_to root_path
-      end
-    end
-
     context "like admin" do
       before do
         sign_in admin

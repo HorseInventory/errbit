@@ -14,20 +14,21 @@ class Api::V3::NoticesController < ApplicationController
 
     report = AirbrakeApi::V3::NoticeParser.new(merged_params).report
 
-    return render json: { error: UNKNOWN_API_KEY }, status: :unprocessable_entity unless report.valid?
-    return render json: { error: VERSION_TOO_OLD }, status: :unprocessable_entity unless report.should_keep?
+    unless report.valid?
+      return render(json: { error: report.errors }, status: :unprocessable_entity)
+    end
 
     report.generate_notice!
-    render status: :created, json: { id: report.notice.id, url: report.problem.url }
+    render(status: :created, json: { id: report.notice.id, url: report.problem.url })
   rescue AirbrakeApi::ParamsError => e
     Rails.logger.error(e.backtrace.join("\n"))
-    render json: { error: 'Invalid request', details: e.message }, status: :bad_request
+    render(json: { error: 'Invalid request', details: e.message }, status: :bad_request)
   rescue StandardError => e
     Rails.logger.error(e.backtrace.join("\n"))
-    render json: { error: 'Unexpected server error', details: e.message }, status: :internal_server_error
+    render(json: { error: 'Unexpected server error', details: e.message }, status: :internal_server_error)
   end
 
-  private
+private
 
   def set_cors_headers
     response.headers['Access-Control-Allow-Origin'] = '*'
@@ -46,8 +47,8 @@ class Api::V3::NoticesController < ApplicationController
     return if errors.blank?
 
     errors.each_with_index do |error, index|
-      missing_fields = %w[message backtrace].select { |field| error[field].blank? }
-      raise AirbrakeApi::ParamsError, "Error at index #{index}: Missing fields #{missing_fields.join(', ')}" unless missing_fields.empty?
+      missing_fields = ['message', 'backtrace'].select { |field| error[field].blank? }
+      raise AirbrakeApi::ParamsError, "Error at index #{index}: Missing fields #{missing_fields.join(", ")}" unless missing_fields.empty?
     end
   end
 

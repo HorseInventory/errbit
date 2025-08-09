@@ -1,8 +1,6 @@
 require 'recurse'
 
 class Notice
-  include ActiveModel::Serializers::Xml
-
   UNAVAILABLE = 'N/A'
 
   # Mongo will not accept index keys larger than 1,024 bytes and that includes
@@ -20,37 +18,40 @@ class Notice
   field :user_attributes, type: Hash
   field :framework
   field :error_class
-  delegate :lines, to: :backtrace, prefix: true
-  delegate :problem, to: :err
+  field :fingerprint
 
-  belongs_to :app
-  belongs_to :err
-  belongs_to :backtrace, index: true
+  belongs_to :problem, inverse_of: :notices
+  belongs_to :backtrace, index: true, autosave: true, optional: true
 
   index(created_at: 1)
-  index(err_id: 1, created_at: 1, _id: 1)
+  index(problem_id: 1, created_at: 1, _id: 1)
+  index(fingerprint: 1)
 
+  before_validation :ensure_fingerprint
+  validates :server_environment, :notifier, :fingerprint, presence: true
   before_save :sanitize
-  before_destroy :problem_recache
-
-  validates :backtrace_id, :server_environment, :notifier, presence: true
 
   scope :ordered, -> { order_by(:created_at.asc) }
   scope :reverse_ordered, -> { order_by(:created_at.desc) }
-  scope :for_errs, lambda { |errs|
-    where(:err_id.in => errs.all.map(&:id))
+  scope :for_problems, lambda { |problems|
+    where(:problem_id.in => problems.all.map(&:id))
   }
 
   # Overwrite the default setter to make sure the message length is no larger
   # than the limit we impose.
   def message=(m)
     truncated_m = m.mb_chars.compose.limit(MESSAGE_LENGTH_LIMIT).to_s
-    super(m.is_a?(String) ? truncated_m : m)
+    super(truncated_m)
   end
 
   def user_agent
     agent_string = env_vars['HTTP_USER_AGENT']
     agent_string.blank? ? nil : UserAgent.parse(agent_string)
+  end
+
+  def env_vars
+    vars = request['cgi-data']
+    vars.is_a?(Hash) ? vars : {}
   end
 
   def user_agent_string
@@ -61,7 +62,9 @@ class Notice
     end
   end
 
-  def environment_name
+  def environment
+    return 'development' if server_environment.blank?
+
     n = server_environment['server-environment'] || server_environment['environment-name']
     n.blank? ? 'development' : n
   end
@@ -91,14 +94,10 @@ class Notice
   def host
     uri = url && URI.parse(url)
     return uri.host if uri && uri.host.present?
+
     UNAVAILABLE
   rescue URI::InvalidURIError
     UNAVAILABLE
-  end
-
-  def env_vars
-    vars = request['cgi-data']
-    vars.is_a?(Hash) ? vars : {}
   end
 
   def params
@@ -126,10 +125,70 @@ class Notice
     message.gsub(/(#<.+?):[0-9a-f]x[0-9a-f]+(>)/, '\1\2')
   end
 
+  def fingerprint
+    value = super
+    if value.present?
+      value
+    else
+      self.fingerprint = generate_fingerprint
+      super
+    end
+  end
+
+  delegate :app, to: :problem
+
+  def deduplicated_message
+    message.gsub(
+      GUID_PATTERN, '<GUID>'
+    ).gsub(
+      DOMAIN_PATTERN, '<DOMAIN>'
+    ).gsub(
+      IP_PATTERN, '<IP>'
+    ).gsub(
+      INTEGER_PATTERN, '<INTEGER>'
+    ).gsub(
+      EMAIL_PATTERN, '<EMAIL>'
+    ).gsub(
+      PHONE_PATTERN, '<PHONE>'
+    ).gsub(
+      DATE_PATTERN, '<DATE>'
+    ).gsub(
+      URL_PATTERN, '<URL>'
+    ).gsub(
+      FILE_PATH_PATTERN, '<FILE_PATH>'
+    ).gsub(
+      MAC_ADDRESS_PATTERN, '<MAC_ADDRESS>'
+    ).gsub(
+      HASH_PATTERN, '<HASH>'
+    )
+  end
+
+  def ensure_fingerprint
+    self.fingerprint ||= generate_fingerprint
+  end
+
+  def backtrace_lines
+    backtrace&.lines || []
+  end
+
 private
 
-  def problem_recache
-    problem.uncache_notice(self)
+  def generate_fingerprint
+    material = []
+    material << error_class
+    material << filtered_message if message.present?
+    material << component
+    material << action
+    material << environment
+
+    if backtrace
+      material << backtrace.lines.first
+    end
+
+    Digest::MD5.hexdigest(material.map(&:to_s).join)
+  rescue NoMethodError => e
+    Rails.logger.error("Error generating fingerprint: #{e.message}")
+    nil
   end
 
   def sanitize
@@ -142,7 +201,7 @@ private
     hash.recurse do |recurse_hash|
       recurse_hash.inject({}) do |h, (k, v)|
         if k.is_a?(String)
-          h[k.gsub(/\./, '&#46;').gsub(/^\$/, '&#36;')] = v
+          h[k.gsub('.', '&#46;').gsub(/^\$/, '&#36;')] = v
         else
           h[k] = v
         end

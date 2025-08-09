@@ -7,9 +7,7 @@ class ResolvedProblemClearer
   def execute
     nb_problem_resolved.tap do |nb|
       if nb > 0
-        criteria.each do |problem|
-          ProblemDestroy.new(problem).execute
-        end
+        ::ProblemDestroy.new(criteria).execute
         compact_database
       end
     end

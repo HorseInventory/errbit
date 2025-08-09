@@ -13,12 +13,6 @@
   = f.label :repository_branch, t('.repository_branch')
   = f.text_field :repository_branch, :placeholder => "master"
 %div
-  = f.label :github_repo, t('.github_repo')
-  = f.text_field :github_repo, :placeholder => "errbit/errbit from https://github.com/errbit/errbit"
-%div
-  = f.label :bitbucket_repo, t('.bitbucket_repo')
-  = f.text_field :bitbucket_repo, :placeholder => "errbit/errbit from https://bitbucket.org/errbit/errbit"
-%div
   = f.label :custom_backtrace_url_template, t('.custom_backtrace_url_template')
   = f.text_field :custom_backtrace_url_template, :placeholder => "https://gitea.example.com/repos/name/src/branch/%{branch}/%{file}#L%{line}"
 %div
@@ -39,21 +33,3 @@
       .field-helpertext Send a notification every
       = f.text_field :email_at_notices, :value => app_decorate.email_at_notices
       .field-helpertext times an error occurs (comma separated).
-
-%fieldset
-  %legend= t('notice_fingerprinter.title')
-  %p= t('notice_fingerprinter.text')
-  .checkbox
-    = f.check_box :use_site_fingerprinter, 'data-hide-when-checked' => '.custom_notice_fingerprinter'
-    = f.label :use_site_fingerprinter, t('.use_site_fingerprinter')
-
-    %div.custom_notice_fingerprinter{:style => app_decorate.custom_notice_fingerprinter_style}
-      = render 'shared/notice_fingerprinter', :f => f
-
-
-%div.checkbox
-  = f.check_box :notify_all_users
-  = f.label :notify_all_users, t('.notify_all_users')
-
-= render "issue_tracker_fields", :f => f
-= render "service_notification_fields", :f => f

@@ -1,29 +1,8 @@
 namespace :errbit do
-  desc "Updates cached attributes on Problem"
-  task problem_recache: :environment do
-    ProblemRecacher.run
-  end
-
   desc "Delete resolved errors from the database. (Useful for limited heroku databases)"
   task clear_resolved: :environment do
     require 'resolved_problem_clearer'
     puts "=== Cleared #{ResolvedProblemClearer.new.execute} resolved errors from the database."
-  end
-
-  desc "Delete old errors from the database. (Useful for limited heroku databases)"
-  task clear_outdated: :environment do
-    require 'outdated_problem_clearer'
-    if Errbit::Config.notice_deprecation_days.present?
-      puts "=== Cleared #{OutdatedProblemClearer.new.execute} outdated errors from the database."
-    else
-      puts "=== ERRBIT_PROBLEM_DESTROY_AFTER_DAYS not set. Old problems will not be destroyed."
-    end
-  end
-
-  desc "Regenerate fingerprints"
-  task notice_refingerprint: :environment do
-    NoticeRefingerprinter.run
-    ProblemRecacher.run
   end
 
   desc "Remove notices in batch"

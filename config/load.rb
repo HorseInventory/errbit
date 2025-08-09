@@ -1,5 +1,5 @@
 # load default ENV values (without overwriting any existing value)
-Dotenv.load('.env')
+Dotenv.load(".env.default")
 
 require_relative '../lib/configurator'
 
@@ -28,26 +28,6 @@ Errbit::Config = Configurator.run(
   serve_static_assets:       ['SERVE_STATIC_ASSETS'],
   secret_key_base:           ['SECRET_KEY_BASE'],
   mongo_url:                 %w(MONGODB_URI MONGOLAB_URI MONGOHQ_URL MONGODB_URL MONGO_URL),
-
-  # github
-  github_url:                ['GITHUB_URL', lambda do |values|
-    values[:github_url] && values[:github_url].gsub(%r{/*\z}, '')
-  end],
-  github_authentication:     ['GITHUB_AUTHENTICATION'],
-  github_client_id:          ['GITHUB_CLIENT_ID'],
-  github_secret:             ['GITHUB_SECRET'],
-  github_org_id:             ['GITHUB_ORG_ID'],
-  github_access_scope:       ['GITHUB_ACCESS_SCOPE'],
-  github_api_url:            ['GITHUB_API_URL'],
-  github_site_title:         ['GITHUB_SITE_TITLE'],
-  # google
-  google_authentication:     ['GOOGLE_AUTHENTICATION'],
-  google_auto_provision:     ['GOOGLE_AUTO_PROVISION'],
-  google_site_title:         ['GOOGLE_SITE_TITLE'],
-  google_client_id:          ['GOOGLE_CLIENT_ID'],
-  google_secret:             ['GOOGLE_SECRET'],
-  google_redirect_uri:       ['GOOGLE_REDIRECT_URI'],
-  google_authorized_domains: ['GOOGLE_AUTHORIZED_DOMAINS'],
 
   email_delivery_method:     ['EMAIL_DELIVERY_METHOD', lambda do |values|
     values[:email_delivery_method] && values[:email_delivery_method].to_sym

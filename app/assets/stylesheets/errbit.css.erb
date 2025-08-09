@@ -165,8 +165,8 @@ a.action  { float: right; font-size: 0.9em;}
   border: 1px solid #C6C6C6;
 }
 
-/* Content Title and Comments */
-#content-title, #content-comments {
+/* Content Title */
+#content-title {
   padding: 30px 24px;
   border-top: 1px solid #FFF;
   border-bottom: 1px solid #FFF;
@@ -182,20 +182,13 @@ a.action  { float: right; font-size: 0.9em;}
   background-color: #90EE90;
 }
 
-#content-comments {
-  background-color: #ffffff;
-}
-#content-title h1, #content-comments h3 {
+#content-title h1 {
   padding: 0; margin: 0;
   width: 85%;
   border: none;
   color: #636363;
   font-size: 2em; line-height: 1em; font-weight: bold; font-family: arial, sans-serif;
   word-wrap: break-word;
-}
-#content-comments h3 {
-  font-size: 1.5em;
-  margin-bottom: 14px;
 }
 
 #content-title .meta { font-size: 0.9em; color: #787878; }
@@ -204,7 +197,7 @@ a.action  { float: right; font-size: 0.9em;}
 #action-bar {
   position: absolute;
   text-align: right;
-  top: 22px; right: 24px;
+  top: 22px; right: 64px;
 }
 #action-bar span {
   display: inline-block;
@@ -240,9 +233,6 @@ a.action  { float: right; font-size: 0.9em;}
 #action-bar a i {
   margin-right: 5px;
 }
-
-#action-bar span.github a:before { font-family: FontAwesome; content: "\f09b"; margin-right: 8px; position: relative; top: 4px; font-size: 26px; }
-#action-bar span.google a:before { font-family: FontAwesome; content: "\f1a0"; margin-right: 8px; position: relative; top: 4px; font-size: 26px; }
 
 #action-bar span a.issue-tracker-button {
   padding-left: 5px;
@@ -556,11 +546,6 @@ a.button.active {
   display: inline-block;
 }
 
-/* Issue Tracker / Notification Forms */
-div.issue_tracker.nested .tracker_params, div.notification_service.nested .notification_params {
-  display: none;
-}
-
 div.nested .chosen {
   display: block !important;
 }
@@ -568,65 +553,9 @@ div.nested .choose {
   margin-bottom: 0.5em;
 }
 
-div.issue_tracker.nested .choose {
-  background-color: #ebebeb;
-  border: 1px solid #dddddd;
-  margin: 0 0 15px;
-  padding: 12px;
-}
-
-div.notification_service.nested .choose  {
-  background-color: #ebebeb;
-  border: 1px solid #dddddd;
-  margin: 0 0 15px;
-  padding: 12px;
-
-}
-div.issue_tracker.nested img {
-  vertical-align: middle;
-}
-
-div.notification_service.nested img {
-  vertical-align: middle;
-}
-
-/* Icons for Issue Tracker Radio Buttons */
-div.issue_tracker.nested label.label_radio {
-  color: #929292;
-  margin-right: 8px;
-}
-
-div.notification_service.nested label.label_radio  {
-  color: #929292;
-  padding-left: 33px;
-  margin-bottom: 6px;
-  margin-right: 8px;
-  line-height: 30px;
-}
-
-div.notification_service.nested .choose {
-  padding-bottom: 6px;
-}
-
-div.issue_tracker.nested label.label_radio:hover, div.notification_service.nested label.label_radio:hover {
-  color: #696969;
-}
-
-div.issue_tracker.nested .label_radio input {
-  display: none;
-}
-
-div.notification_service.nested .label_radio input {
-  position: absolute; left: -9999px;
-}
-
 .button-icon {
   float: left;
   margin: 5px 0 0 6px;
-}
-
-div.issue_tracker.nested label.r_on, div.issue_tracker.nested label.r_on:hover, div.notification_service.nested label.r_on, div.notification_service.nested label.r_on:hover {
-  color: #191919;
 }
 
 /* Icons need to be preloaded, otherwise it looks bad */
@@ -639,14 +568,6 @@ table.apps td.name { width: 100%; }
 table.apps td { padding: 16px 20px; }
 table.apps th { padding: 10px 20px; }
 
-table.apps td.issue_tracker, table.apps td.count {
-  text-align: center;
-}
-table.apps td.issue_tracker, table.apps td.count {
-  padding: 10px 8px;
-}
-table.apps td.issue_tracker img { vertical-align: top; }
-
 td.message .line {
   display:inline-block;
   margin-left:1em;
@@ -654,7 +575,7 @@ td.message .line {
 td.latest {
   white-space: nowrap;
 }
-td.count .td-container, td.issue_link .td-container, td.resolve .td-container {
+td.count .td-container, td.resolve .td-container {
   text-align: center;
 }
 
@@ -745,31 +666,6 @@ table.tally td.percent {
 table.tally th.value {
   width: 100%;
   text-transform: none;
-}
-
-/* Sparklines */
-
-#sparkline-placeholder {
-  display: none;
-}
-
-.spark {
-  position: relative;
-  border: 1px solid #ddd;
-  float: left;
-  padding: 1px;
-  margin: 0;
-  height: 30px;
-}
-
-.spark > i {
-  display: inline-block;
-  position: relative;
-  width: 10px;
-  background: black;
-  margin: 0;
-  padding: 0;
-  vertical-align: bottom;
 }
 
 /* Resolve Errs */
@@ -902,7 +798,7 @@ table.backtrace tr.padding th, table.backtrace tr.padding td {
   padding: 0;
 }
 
-h3#watchers_toggle, h3#repository_toggle {
+h3#repository_toggle {
   cursor: pointer;
 }
 
@@ -910,80 +806,10 @@ span.click_span {
   font-size: 0.7em;
 }
 
-#repository_div, #watchers_div {
+#repository_div {
   display: none;
 }
 
-/* Comments */
-#content-comments form p {
-  margin: 30px 0 0 0;
-  text-transform: uppercase;
-}
-table.comment tbody th {
-  text-transform: none;
-  font-weight: normal;
-  height: 20px;
-  line-height: 0.5em;
-}
-table.comment th span, table.comment th img {
-  vertical-align: middle;
-}
-table.comment th span.comment-info {
-  line-height: 21px;
-  float: left;
-}
-table.comment img.gravatar {
-  margin-right: 7px;
-  float: left;
-}
-
-table.comment tbody td {
-  background-color: #F9F9F9;
-}
-#content-comments a.destroy-comment {
-  color: #EE0000;
-  margin-right: 5px;
-  margin-top: 2px;
-  font-size: 21px;
-  line-height: 1;
-  float: right;
-}
-#content-comments a.destroy-comment:hover {
-  text-decoration: none;
-  color: #AA0000;
-}
-#content-comments #comment_submit {
-  margin-top: 15px;
-}
-/* Inline comments in tables */
-table.errs tr td.message .inline_comment {
-  display: inline-block;
-  padding: 3px 7px;
-  margin: 6px 0;
-  background-color: #DAE5FF;
-  border: 1px solid #E2E2E2;
-  text-shadow: 0 1px 0 #FAFAFA;
-  font-style: normal;
-  word-wrap: break-word;
-  text-overflow: ellipsis;
-  width: 300px;
-}
-table.errs tr:hover td.message .inline_comment {
-  background-color: #D5E0FA;
-  border-color: #DBDBDB;
-  text-shadow: 0 1px 0 #FFFFFF;
-}
-table.errs tr td.message .inline_comment em {
-  color: #444;
-}
-table.errs tr td.message .inline_comment em.commenter {
-  color: #777;
-}
-
-textarea#comment_body {
-  width: 420px;
-  height: 80px;
-}
 
 .current.asc:after { content: ' ↑'; }
 .current.desc:after { content: ' ↓'; }

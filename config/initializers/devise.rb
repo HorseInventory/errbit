@@ -250,39 +250,6 @@ Devise.setup do |config|
   # The default HTTP method used to sign out a resource. Default is :delete.
   config.sign_out_via = :delete
 
-  # ==> OmniAuth
-  # Add a new OmniAuth provider. Check the wiki for more information on setting
-  # up on your models and hooks.
-  # config.omniauth :github, 'APP_ID', 'APP_SECRET', scope: 'user,public_repo'
-
-  if Errbit::Config.github_authentication || Rails.env.test?
-    github_options = {
-      scope:          Errbit::Config.github_access_scope.join(','),
-      skip_info:      true,
-      client_options: {
-        site:          Errbit::Config.github_api_url,
-        authorize_url: "#{Errbit::Config.github_url}/login/oauth/authorize",
-        token_url:     "#{Errbit::Config.github_url}/login/oauth/access_token"
-      }
-    }
-
-    config.omniauth :github,
-      Errbit::Config.github_client_id,
-      Errbit::Config.github_secret,
-      github_options
-  end
-
-  if Errbit::Config.google_authentication || Rails.env.test?
-    google_options = {
-      redirect_uri: Errbit::Config.google_redirect_uri
-    }.compact
-
-    config.omniauth :google_oauth2,
-      Errbit::Config.google_client_id,
-      Errbit::Config.google_secret,
-      google_options
-  end
-
   # ==> Warden configuration
   # If you want to use other strategies, that are not supported by Devise, or
   # change the failure app, you can configure them inside the config.warden block.
@@ -302,7 +269,4 @@ Devise.setup do |config|
   # The router that invoked `devise_for`, in the example above, would be:
   # config.router_name = :my_engine
   #
-  # When using OmniAuth, Devise cannot automatically set OmniAuth path,
-  # so you need to do it manually. For the users scope, it would be:
-  # config.omniauth_path_prefix = '/my_engine/users/auth'
 end

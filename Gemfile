@@ -8,63 +8,37 @@ gem 'actionmailer', RAILS_VERSION
 gem 'actionpack', RAILS_VERSION
 gem 'railties', RAILS_VERSION
 
-gem 'activemodel-serializers-xml'
 gem 'actionmailer_inline_css'
 gem 'decent_exposure'
 gem 'devise'
 gem 'dotenv-rails'
 gem 'draper'
 gem 'errbit_plugin'
-gem 'errbit_github_plugin'
 gem 'font-awesome-rails'
 gem 'haml'
 gem 'htmlentities'
 gem 'kaminari'
 gem 'kaminari-mongoid'
 gem 'mongoid'
-gem 'omniauth'
-gem 'omniauth-rails_csrf_protection'
-gem 'omniauth-github'
-gem 'omniauth-google-oauth2'
 gem 'rack-ssl', require: 'rack/ssl' # force SSL
 gem 'rack-ssl-enforcer', require: false
 gem 'rinku'
 gem 'useragent'
 
-# Please don't update hoptoad_notifier to airbrake.
-# It's for internal use only, and we monkeypatch certain methods
-gem 'hoptoad_notifier', path: "vendor/hoptoad_notifier-2.4.11"
-
-# Notification services
-# ---------------------------------------
-gem 'campy'
-# Google Talk
-gem 'xmpp4r', require: ["xmpp4r", "xmpp4r/muc"]
-# Hoiio (SMS)
-gem 'hoi'
-# Pushover (iOS Push notifications)
-gem 'rushover'
-# Hubot
-gem 'httparty'
-# Flowdock
-gem 'flowdock'
-
-gem 'ri_cal'
 gem 'json'
 
 # For Ruby 3.1
 gem 'net-smtp'
 gem 'net-pop'
 gem 'net-imap'
-gem 'rexml'
-
-gem 'pry-rails'
 
 group :development, :test do
-  gem 'airbrake', '~> 4.3.5', require: false
-  gem 'rubocop', '~> 0.71.0', require: false
+  gem 'airbrake', require: false
+  gem 'rubocop', require: false
   gem 'rubocop-performance', require: false
   gem 'rubocop-rails', require: false
+  gem 'rubocop-shopify', require: false
+  gem 'pry-rails'
 end
 
 group :development do
@@ -89,6 +63,7 @@ group :test do
   gem 'email_spec'
   gem 'timecop'
   gem 'coveralls', require: false
+  gem 'debug'
 end
 
 group :no_docker, :test, :development do
