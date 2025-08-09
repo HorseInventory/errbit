@@ -33,4 +33,8 @@ Probably not unless you want to hack on it. From a user's perspective, it's wors
 - Continue to delete code
 - Continue to delete gems
 - Continue to update gems
+- Switch from HAML to plain ERB
+- Upgrade to Rails 8
+- Upgrade to Ruby 3.4
+- Upgrade to ES2025
 - I might switch to Postgres
