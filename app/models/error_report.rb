@@ -155,6 +155,9 @@ class ErrorReport
       when GUID_PATTERN
         # Insert unescaped GUID pattern
         '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}'
+      when URL_PATTERN
+        # Insert unescaped URL pattern
+        'https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)'
       when DOMAIN_PATTERN
         # Insert unescaped domain pattern
         '[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)+'
@@ -173,9 +176,6 @@ class ErrorReport
       when DATE_PATTERN
         # Insert unescaped date pattern
         '\d{4}-\d{2}-\d{2}(?:T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+\-]\d{2}:?\d{2})?)?'
-      when URL_PATTERN
-        # Insert unescaped URL pattern
-        'https?:\/\/[^\s]+'
       when FILE_PATH_PATTERN
         # Insert unescaped file path pattern
         '\/(?:[A-Za-z0-9._-]+\/)*[A-Za-z0-9._-]+'
