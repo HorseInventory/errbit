@@ -20,7 +20,7 @@
   %span>= link_to t('.up'), (request.env['HTTP_REFERER'] ? :back : app_problems_path(app)), :class => 'up'
   %br
 
-%h4= @notice.try(:message)
+%h4= problem.message
 
 - if params[:notice_id]
   %p= t('.notice_by_id', notice_id: params[:notice_id])
