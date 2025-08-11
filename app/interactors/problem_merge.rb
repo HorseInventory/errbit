@@ -8,6 +8,8 @@ class ProblemMerge
   end
 
   def merge
+    return merged_problem if child_problems.empty?
+
     Notice.where(
       :problem_id.in => child_problems.map(&:id),
     ).update_all(problem_id: merged_problem.id)
