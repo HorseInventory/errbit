@@ -127,7 +127,7 @@ class ErrorReport
   def should_email?
     @should_email ||= app.emailable? && app.notification_recipients.any? &&
       (app.email_at_notices.include?(0) ||
-      app.email_at_notices.include?(@problem.notices_count))
+      app.email_at_notices.include?(notices_count))
   end
 
   def find_similar_problems(notice)
@@ -208,12 +208,9 @@ class ErrorReport
 
 private
 
-  # Our DB size is limited, so we need to compress old notices to keep the DB size down.
+  # Our DB size is limited, so we need to compress / trim old notices to keep the DB size down.
   def compress_old_notices
-    # Get count of all notices
-    total_count = problem.notices.count
-
-    if total_count > MAX_RECENT_NOTICES
+    if notices_count > MAX_RECENT_NOTICES
       # Get notices to keep (MAX_RECENT_NOTICES most recent)
       notices_to_keep = problem.notices.reverse_ordered.limit(MAX_RECENT_NOTICES)
       notice_ids_to_keep = notices_to_keep.pluck(:id)
@@ -230,10 +227,14 @@ private
       # And delete backtraces
       Backtrace.where(:id.nin => notices_to_keep.pluck(:backtrace_id)).delete_all
 
-      total_count - MAX_RECENT_NOTICES
+      notices_count - MAX_RECENT_NOTICES
     else
       0
     end
+  end
+
+  def notices_count
+    @notices_count ||= problem.notices_count
   end
 
   attr_reader :api_key
