@@ -217,11 +217,11 @@ private
   def compress_old_notices
     if notices_count > MAX_RECENT_NOTICES
       # Get notices to keep (MAX_RECENT_NOTICES most recent)
-      notices_to_keep = problem.notices.reverse_ordered.limit(MAX_RECENT_NOTICES)
-      notice_ids_to_keep = notices_to_keep.pluck(:id)
+      notices_to_delete = problem.notices.reverse_ordered.skip(MAX_RECENT_NOTICES).only(:id, :backtrace_id)
+      notice_ids_to_delete = notices_to_delete.pluck(:id)
 
       # "compress" notices not in our keep list
-      problem.notices.where(:id.nin => notice_ids_to_keep).update_all(
+      problem.notices.where(:id.in => notice_ids_to_delete).update_all(
         server_environment: {},
         request: nil,
         notifier: {},
@@ -229,9 +229,10 @@ private
         framework: nil,
         error_class: nil,
       )
+
       # And delete backtraces
-      backtrace_ids_to_keep = notices_to_keep.pluck(:backtrace_id)
-      Backtrace.where(:id.nin => backtrace_ids_to_keep).delete_all
+      backtrace_ids_to_delete = notices_to_delete.pluck(:backtrace_id)
+      Backtrace.where(:id.in => backtrace_ids_to_delete).delete_all
 
       notices_count - MAX_RECENT_NOTICES
     else
