@@ -2,17 +2,6 @@ describe ProblemMerge do
   let(:problem) { Fabricate(:problem_with_notices) }
   let(:problem_1) { Fabricate(:problem_with_notices) }
 
-  describe "#initialize" do
-    it 'extract first problem like merged_problem' do
-      problem_merge = ProblemMerge.new(problem, problem, problem_1)
-      expect(problem_merge.merged_problem).to eql problem
-    end
-    it 'extract other problem like child_problems' do
-      problem_merge = ProblemMerge.new(problem, problem, problem_1)
-      expect(problem_merge.child_problems).to eql [problem_1]
-    end
-  end
-
   describe "#merge" do
     let!(:problem_merge) do
       ProblemMerge.new(problem, problem_1)

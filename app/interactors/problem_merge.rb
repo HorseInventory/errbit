@@ -6,7 +6,6 @@ class ProblemMerge
     @merged_problem = problems[0]
     @child_problems = problems[1..-1]
   end
-  attr_reader :merged_problem, :child_problems
 
   def merge
     Notice.where(
@@ -17,4 +16,8 @@ class ProblemMerge
 
     merged_problem
   end
+
+private
+
+  attr_reader :merged_problem, :child_problems
 end
