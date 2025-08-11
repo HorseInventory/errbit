@@ -160,6 +160,8 @@ class Notice
       MAC_ADDRESS_PATTERN, '<MAC_ADDRESS>'
     ).gsub(
       HASH_PATTERN, '<HASH>'
+    ).gsub(
+      QUOTED_STRING_PATTERN, '<QUOTED_STRING>'
     )
   end
 

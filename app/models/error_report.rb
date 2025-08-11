@@ -9,6 +9,7 @@ URL_PATTERN     = %r{\bhttps?://[^\s]+\b}
 FILE_PATH_PATTERN = %r{\b/(?:[A-Za-z0-9._-]+/)*[A-Za-z0-9._-]+\b}
 MAC_ADDRESS_PATTERN = /\b[0-9a-fA-F]{2}(?::[0-9a-fA-F]{2}){5}\b/
 HASH_PATTERN = /\b[0-9a-fA-F]{7,64}\b/
+QUOTED_STRING_PATTERN = /"[^"]*"|'[^']*'/
 
 VARIABLE_REGEX = Regexp.union(
   GUID_PATTERN,
@@ -192,6 +193,9 @@ class ErrorReport
       when HASH_PATTERN
         # Insert unescaped hash pattern
         '[0-9a-fA-F]{7,64}'
+      when QUOTED_STRING_PATTERN
+        # Insert unescaped quoted string pattern
+        '"[^"]*"|\'[^\']*\''
       else
         # Fallback: if for some reason we matched something else, just escape it
         Regexp.escape(variable_text)

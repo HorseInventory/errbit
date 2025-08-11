@@ -230,4 +230,18 @@ describe ErrorReport do
       end
     end
   end
+
+  describe "text_to_regex_string" do
+    let(:similar_notice_messages) do
+      JSON.parse(Rails.root.join("spec/fixtures/similar_notice_messages.json").read)
+    end
+
+    it "should return a minimal number of unique regexes" do
+      unique_regexes = similar_notice_messages.map do |message|
+        ErrorReport.text_to_regex_string(message).gsub("\\", "")
+      end.uniq
+
+      expect(unique_regexes.size).to be <= 25
+    end
+  end
 end
