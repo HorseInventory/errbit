@@ -134,6 +134,9 @@ class ErrorReport
     problem_ids = Notice.where(
       message: /#{self.class.text_to_regex_string(notice.message)}/i,
     ).pluck(:problem_id)
+
+    return [] if problem_ids.empty?
+
     Problem.where(
       :_id.in => problem_ids,
     ).order(created_at: :asc)
