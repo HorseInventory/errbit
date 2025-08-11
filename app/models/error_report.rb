@@ -53,6 +53,13 @@ class ErrorReport
     @app ||= App.where(api_key: api_key).first
   end
 
+  def valid?
+    return false if @app.nil?
+
+    @notice ||= make_notice
+    @notice.valid?
+  end
+
   def generate_notice!
     @notice ||= make_notice
 
@@ -67,13 +74,6 @@ class ErrorReport
 
     email_notification
     @notice
-  end
-
-  def valid?
-    return false if @app.nil?
-
-    @notice ||= make_notice
-    @notice.valid?
   end
 
   def errors
