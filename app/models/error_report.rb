@@ -138,6 +138,7 @@ class ErrorReport
     return [] if problem_ids.empty?
 
     Problem.where(
+      app_id: app.id,
       :_id.in => problem_ids,
     ).order(created_at: :asc)
   end
