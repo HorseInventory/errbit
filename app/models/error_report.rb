@@ -226,7 +226,8 @@ private
         error_class: nil,
       )
       # And delete backtraces
-      Backtrace.where(:id.nin => notices_to_keep.pluck(:backtrace_id)).delete_all
+      backtrace_ids_to_keep = notices_to_keep.pluck(:backtrace_id)
+      Backtrace.where(:id.nin => backtrace_ids_to_keep).delete_all
 
       notices_count - MAX_RECENT_NOTICES
     else
