@@ -87,6 +87,7 @@ class ErrorReport
   def make_notice
     @notice = new_notice
     @problem ||= select_or_create_problem(@notice)
+    @problem.app = @app
     @notice.problem = @problem
     @notice.ensure_fingerprint
     @notice
