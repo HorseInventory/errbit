@@ -93,12 +93,14 @@ class ErrorReport
   end
 
   def select_or_create_problem(notice)
-    similar_problems = find_similar_problems(notice)
+    similar_problems = find_similar_problems(notice).to_a
 
     if similar_problems.empty?
       @app.find_or_build_problem(notice)
-    else
+    elsif similar_problems.size > 2
       ProblemMerge.new(similar_problems).merge
+    else
+      similar_problems.first
     end
   end
 
