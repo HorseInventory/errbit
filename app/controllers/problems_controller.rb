@@ -1,5 +1,6 @@
 class ProblemsController < ApplicationController
   include ProblemsSearcher
+  include ProblemSorting
 
   before_action :need_selected_problem, only: [
     :resolve_several, :unresolve_several,
@@ -41,7 +42,8 @@ class ProblemsController < ApplicationController
       ordered_by(params_sort, params_order)
 
     finder = finder.search(params[:search]) if params[:search].present?
-    finder.page(params[:page]).per(current_user.per_page)
+
+    sort_and_paginate_problems(finder, params_sort, params_order, params[:page], current_user.per_page)
   end
 
   def index

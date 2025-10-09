@@ -96,6 +96,33 @@ describe Problem, type: 'model' do
   end
 
   context "Scopes" do
+    context "ordered_by last_notice_at" do
+      it 'can be sorted and paginated manually' do
+        app = Fabricate(:app)
+        problem1 = Fabricate(:problem, app: app)
+        problem2 = Fabricate(:problem, app: app)
+        problem3 = Fabricate(:problem, app: app)
+
+        Timecop.freeze(3.days.ago) { Fabricate(:notice, problem: problem1) }
+        Timecop.freeze(1.day.ago) { Fabricate(:notice, problem: problem2) }
+        Timecop.freeze(2.days.ago) { Fabricate(:notice, problem: problem3) }
+
+        problems = Problem.for_apps(App.where(id: app.id)).to_a
+        sorted_desc = problems.sort_by do |problem|
+          timestamp = problem.last_notice_at
+          timestamp ? -timestamp.to_i : -Time.at(0).to_i
+        end
+
+        expect(sorted_desc[0]).to(eq(problem2))
+        expect(sorted_desc[1]).to(eq(problem3))
+        expect(sorted_desc[2]).to(eq(problem1))
+
+        paginated = Kaminari.paginate_array(sorted_desc).page(1).per(2)
+        expect(paginated.size).to(eq(2))
+        expect(paginated[0]).to(eq(problem2))
+      end
+    end
+
     context "resolved" do
       it 'only finds resolved Problems' do
         resolved = Fabricate(:problem, resolved: true)

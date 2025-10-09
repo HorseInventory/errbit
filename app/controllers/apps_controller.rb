@@ -1,5 +1,6 @@
 class AppsController < ApplicationController
   include ProblemsSearcher
+  include ProblemSorting
 
   before_action :require_admin!, except: [:index, :show, :search]
   before_action :parse_email_at_notices_or_set_default, only: [:create, :update]
@@ -26,9 +27,9 @@ class AppsController < ApplicationController
   expose(:problems) do
     pr = app.problems
     pr = pr.unresolved unless all_errs
-    pr.in_env(
-      params[:environment]
-    ).ordered_by(params_sort, params_order).page(params[:page]).per(current_user.per_page)
+    pr = pr.in_env(params[:environment]).ordered_by(params_sort, params_order)
+
+    sort_and_paginate_problems(pr, params_sort, params_order, params[:page], current_user.per_page)
   end
 
   expose(:users) do

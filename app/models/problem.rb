@@ -23,7 +23,13 @@ class Problem
   scope :resolved, -> { where(resolved: true) }
   scope :unresolved, -> { where(resolved: false) }
   scope :ordered, -> { order_by(:created_at.desc) }
-  scope :for_apps, ->(apps) { where(:app_id.in => apps.map(&:id)) }
+  scope :for_apps, ->(apps) {
+    if apps.selector.empty?
+      all
+    else
+      where(:app_id.in => apps.map(&:id))
+    end
+  }
   scope :all_else_unresolved, ->(fetch_all) { fetch_all ? all : where(resolved: false) }
   scope :in_env, ->(environment) { environment.blank? ? all : where(environment: environment) }
   scope :ordered_by, ->(sort, order) {
@@ -31,11 +37,12 @@ class Problem
     when "app"            then ordered # order_by(["app_name", order])
     when "environment"    then order_by(["environment", order])
     when "message"        then order_by(["message", order])
-    when "last_notice_at" then ordered # order_by(["last_notice_at", order])
+    when "last_notice_at" then all
     when "count"          then ordered # order_by(["notices_count", order])
     else fail("\"#{sort}\" is not a recognized sort")
     end
   }
+
   scope :filtered, ->(filter) {
     return all if filter.blank?
 
