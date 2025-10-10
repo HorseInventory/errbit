@@ -139,6 +139,8 @@ class Notice
 
   def deduplicated_message
     message.gsub(
+      QUOTED_STRING_PATTERN, '<QUOTED_STRING>'
+    ).gsub(
       GUID_PATTERN, '<GUID>'
     ).gsub(
       DOMAIN_PATTERN, '<DOMAIN>'
@@ -160,8 +162,6 @@ class Notice
       MAC_ADDRESS_PATTERN, '<MAC_ADDRESS>'
     ).gsub(
       HASH_PATTERN, '<HASH>'
-    ).gsub(
-      QUOTED_STRING_PATTERN, '<QUOTED_STRING>'
     )
   end
 
