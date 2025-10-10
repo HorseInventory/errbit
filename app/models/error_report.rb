@@ -134,7 +134,7 @@ class ErrorReport
 
   def find_similar_problems(notice)
     problem_ids = Notice.where(
-      message: /#{self.class.text_to_regex_string(notice.message)}/i,
+      message: /\A#{self.class.text_to_regex_string(notice.message)}\z/i,
     ).pluck(:problem_id)
 
     return [] if problem_ids.empty?
