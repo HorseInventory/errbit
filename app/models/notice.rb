@@ -139,8 +139,6 @@ class Notice
 
   def deduplicated_message
     message.gsub(
-      QUOTED_STRING_PATTERN, '<QUOTED_STRING>'
-    ).gsub(
       GUID_PATTERN, '<GUID>'
     ).gsub(
       DOMAIN_PATTERN, '<DOMAIN>'
@@ -162,7 +160,13 @@ class Notice
       MAC_ADDRESS_PATTERN, '<MAC_ADDRESS>'
     ).gsub(
       HASH_PATTERN, '<HASH>'
+    ).gsub(
+      self.class.quoted_string_pattern_omit_others, '<QUOTED_STRING>'
     )
+  end
+
+  def self.quoted_string_pattern_omit_others
+    /"(?:(?!<[A-Z_]+>)[^"])*"|'(?:(?!<[A-Z_]+>)[^'])*'/
   end
 
   def ensure_fingerprint
