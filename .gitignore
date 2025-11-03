@@ -23,3 +23,5 @@ NOTES
 *.swp
 public/assets
 .env.prod
+*.key
+.claude/
