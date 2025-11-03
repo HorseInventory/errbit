@@ -17,6 +17,8 @@
   - if problem.unresolved?
     %span= link_to t('.resolve'), [:resolve, app, problem], :method => :put,
       :data => { :confirm => problem_confirm('resolve_one') }, :class => 'resolve'
+  %span= link_to t('.delete'), [app, problem], :method => :delete,
+    :data => { :confirm => problem_confirm('delete_one') }, :class => 'delete'
   %span>= link_to t('.up'), (request.env['HTTP_REFERER'] ? :back : app_problems_path(app)), :class => 'up'
   %br
 

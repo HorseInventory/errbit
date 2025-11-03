@@ -122,6 +122,7 @@ en:
       ago: ago
     confirm:
       delete: "Permanently delete selected issues?"
+      delete_one: "Permanently delete this issue?"
       resolve: "Resolve selected issues? They can be unresolved later."
       resolve_one: "Resolve this issue? It can be unresolved later."
       merge: "Merge select issues?"
@@ -130,6 +131,8 @@ en:
       search_placeholder: "Search for issues"
     resolve:
       the_error_has_been_resolved: "Great news everyone! The error has been resolved."
+    destroy:
+      the_error_has_been_deleted: "The error has been deleted."
     show:
       summary: Summary
       backtrace: Backtrace
@@ -145,6 +148,7 @@ en:
       where: Where
       up: up
       resolve: resolve
+      delete: delete
       notice_by_id: "Notice: %{notice_id}"
   users:
     confirm_delete: "Permanently delete this user?"

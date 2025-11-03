@@ -24,6 +24,7 @@ Rails.application.routes.draw do
       member do
         put :resolve
         put :unresolve
+        delete :destroy
       end
     end
 

@@ -93,6 +93,14 @@ class ProblemsController < ApplicationController
     redirect_back(fallback_location: root_path)
   end
 
+  def destroy
+    ProblemDestroy.new([problem]).execute
+
+    flash[:success] = t('.the_error_has_been_deleted')
+
+    redirect_to app_problems_path(app)
+  end
+
   def resolve_several
     selected_problems.each(&:resolve!)
 
