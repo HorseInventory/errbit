@@ -1,10 +1,6 @@
 # What
 
-The open source error catcher that's Airbrake API compliant
-
-# About
-
-This is a fork of [Errbit](https://github.com/airbrake/errbit). Shout out to the original authors!
+The *slimmer* open source error catcher that's Airbrake API compliant
 
 # Motivation
 
@@ -26,7 +22,20 @@ In general, FAR fewer features.
 
 # Should you use this?
 
-Probably not unless you want to hack on it. From a user's perspective, it's worse. From a developer's perspective though, it's small enough that you can understand it.
+Maybe. If all you need is error reporting, it's fantastic.
+
+## Pros
+
+- Faster
+- Easier setup
+- Less code
+- Easy to make changes or add features
+- Feature: Automatically merge duplicate errors with different names
+- Feature: Stays under MongoDB.com's free tier by discarding older instnaces of errors
+
+## Cons
+
+- Missing features
 
 # What's next?
 
@@ -38,3 +47,7 @@ Probably not unless you want to hack on it. From a user's perspective, it's wors
 - Upgrade to Ruby 3.4
 - Upgrade to ES2025
 - I might switch to Postgres
+
+# Who
+
+This is a fork of [Errbit](https://github.com/airbrake/errbit). Shout out to the original authors!
